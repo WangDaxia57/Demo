@@ -1,0 +1,3810 @@
+(function ($, window, document, undefined) {
+    $.fn.accordion = function (parameters) {
+        var $allModules = $(this);
+        $allModules.each(function () {
+            var settings = ($.isPlainObject(parameters)) ? $.extend(true, {}, $.fn.accordion.settings, parameters) : $.extend({}, $.fn.accordion.settings), className = settings.className, $module = $(this), $title = $module.find(settings.title), $content = $module.find(settings.content), module;
+            var h = $content.find("li").height() + 1;
+            var dh = 0;
+            module = {
+                initialize: function () {
+                    $title.bind("click", module.event.click);
+                    if (settings.minRow > 0) {
+                        dh = $content.css("height")
+                    } else {
+                        $title.eq(0).addClass(className);
+                        $content.eq(0).addClass(className)
+                    }
+                }, event: {
+                    click: function () {
+                        var $activeTitle = $(this), index = $title.index($activeTitle);
+                        module.toggle(index)
+                    }
+                }, toggle: function (index) {
+                    var $activeTitle = $title.eq(index), isOpen = $activeTitle.hasClass(className);
+                    if (settings.minRow > 0) {
+                        $title.removeClass(className);
+                        if (isOpen) {
+                            module.reset()
+                        } else {
+                            $title.eq(index).addClass(className);
+                            module.every(module.computed(index))
+                        }
+                    } else {
+                        if (isOpen) {
+                            module.close(index)
+                        } else {
+                            module.open(index)
+                        }
+                    }
+                }, computed: function (index) {
+                    var arr = [];
+                    var cur = $content.eq(index);
+                    var size = Math.ceil(cur.find("li").size() / settings.rowCol);
+                    arr[index] = size;
+                    var len = $content.size();
+                    var dis = settings.rowCount - size;
+                    for (var i = 0; i < len; i++) {
+                        var less = Math.floor(dis / settings.minRow);
+                        if (i !== index && dis > 0) {
+                            if (less === 0) {
+                                arr[i] = dis % settings.minRow;
+                                dis = 0
+                            } else {
+                                if (less > 0) {
+                                    arr[i] = settings.minRow;
+                                    dis -= settings.minRow
+                                }
+                            }
+                        } else {
+                            if (i !== index && dis === 0) {
+                                arr[i] = 0
+                            }
+                        }
+                    }
+                    return arr
+                }, open: function (index) {
+                    var $activeTitle = $title.eq(index), $activeContent = $activeTitle.next($content), previousIndex = $title.index($activeTitle.siblings(settings.title).filter("." + className));
+                    if (!$activeContent.is(":animated")) {
+                        $activeTitle.addClass(className);
+                        $activeContent.addClass(className);
+                        var bothH = Math.ceil($activeContent.find("li").size() / settings.rowCol) * h;
+                        $activeContent.css("height", 0);
+                        $activeContent.animate({height: bothH}, settings.duration, settings.animation, function () {
+                        });
+                        module.close(previousIndex)
+                    }
+                }, close: function (index) {
+                    var $activeTitle = $title.eq(index), $activeContent = $activeTitle.next($content);
+                    $activeContent.animate({height: dh}, settings.duration, settings.animation, function () {
+                        $activeTitle.removeClass(className);
+                        $activeContent.removeClass(className)
+                    })
+                }, every: function (arr) {
+                    $.each(arr, function (i, o) {
+                        $content.eq(i).animate({height: o * h}, settings.duration, settings.animation)
+                    })
+                }, reset: function () {
+                    var i = $content.size() - 1;
+                    while (i >= 0) {
+                        $content.eq(i).animate({height: dh}, settings.duration, settings.animation);
+                        i--
+                    }
+                }
+            };
+            module.initialize()
+        })
+    };
+    $.fn.accordion.settings = {
+        duration: 300,
+        animation: "linear",
+        className: "active-",
+        title: "h4",
+        content: "ul",
+        minRow: 0,
+        rowCol: 1,
+        rowCount: 0
+    }
+})(jQuery, window, document);
+(function ($) {
+    $.alert = function (content, callback) {
+        var tpl = [];
+        tpl.push('<div class="dialog alert">');
+        tpl.push('    <a class="close"></a>');
+        tpl.push('    <h3 class="title">提示</h3>');
+        tpl.push('    <div class="body">');
+        tpl.push("        <h4>" + content + "</h4>");
+        tpl.push("    </div>");
+        tpl.push("</div>");
+        if ($(".dialog.alert").length) {
+            return false
+        }
+        $("body").append(tpl.join(""));
+        var ftop = $(".dialog.alert").height() / 2;
+        tpl.length = 0;
+        var top = $("body").scrollTop();
+        var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+        var wH = $(window).height();
+        var at = wH / 2 + scrollTop + ftop;
+        $(".dialog.alert").css({"top": at});
+        if (!$("#overlay").length) {
+            $("body").append('<div id="overlay"></div>');
+            $("#overlay").css({"top": scrollTop})
+        }
+        disable_scroll(scrollTop);
+        $(".dialog.alert").find("a.close").on("click", function () {
+            $(this).parents(".alert").remove();
+            $("#overlay").remove();
+            enable_scroll();
+            $("body").scrollTop(top);
+            if (typeof callback == "function") {
+                callback()
+            }
+        })
+    }
+})(jQuery);
+var keys = [37, 38, 39, 40];
+function preventDefault(e) {
+    e = e || window.event;
+    if (e.preventDefault) {
+        e.preventDefault()
+    }
+    e.returnValue = false
+}
+function keydown(e) {
+    for (var i = keys.length; i--;) {
+        if (e.keyCode === keys[i]) {
+            preventDefault(e);
+            return
+        }
+    }
+}
+function wheel(e) {
+    preventDefault(e)
+}
+function disable_scroll(scrollTop) {
+    $("html,body").css({height: "auto", overflow: "hidden"});
+    $("body").css({"top": scrollTop});
+    if (window.addEventListener) {
+        window.addEventListener("DOMMouseScroll", wheel, false)
+    }
+    window.onmousewheel = document.onmousewheel = wheel;
+    document.onkeydown = keydown
+}
+function enable_scroll() {
+    $("html,body").css({height: "auto", overflow: "auto"});
+    if (window.removeEventListener) {
+        window.removeEventListener("DOMMouseScroll", wheel, false)
+    }
+    window.onmousewheel = document.onmousewheel = document.onkeydown = null
+}
+(function ($) {
+    $.fn.beautify = function (method) {
+        var $defaults = {
+            customID: null,
+            customClass: "",
+            placeholder: null,
+            prefix: null,
+            cycle: false,
+            links: false,
+            linksExternal: false,
+            size: 0,
+            tabIndex: 0,
+            onChange: $.noop
+        }, $_settings = {}, $_sodFilterTimeout, $_sodViewportTimeout;
+        var _private = {
+            initSoD: function (options) {
+                $_settings = $.extend({}, $defaults, options);
+                return this.each(function (i) {
+                    if (!$(this).parent().hasClass("sod_select")) {
+                        var $select = $(this), $settingsId = $_settings.customID ? $_settings.customID : ($select.data("custom-id") ? $select.data("custom-id") : $_settings.customID), $settingsClass = $_settings.customClass ? $_settings.customClass : ($select.data("custom-class") ? $select.data("custom-class") : $_settings.customClass), $settingsPrefix = $_settings.prefix ? $_settings.prefix : ($select.data("prefix") ? $select.data("prefix") : $_settings.prefix), $settingsPlaceholder = $_settings.placeholder ? $_settings.placeholder : ($select.data("placeholder") ? $select.data("placeholder") : $_settings.placeholder), $settingsCycle = ($_settings.cycle || $select.data("cycle")) ? true : $_settings.cycle, $settingsLinks = ($_settings.links || $select.data("links")) ? true : $_settings.links, $settingsLinksExternal = ($_settings.linksExternal || $select.data("links-external")) ? true : $_settings.linksExternal, $settingsSize = $_settings.size ? $_settings.size : ($select.data("size") ? $select.data("size") : $_settings.size), $settingsTabIndex = $_settings.tabIndex ? $_settings.tabIndex : ($select.data("tabindex") ? $select.data("tabindex") : ($select.attr("tabindex") ? $select.attr("tabindex") : $_settings.tabIndex)), $selectTitle = $select.prop("title") ? $select.prop("title") : null, $selectDisabled = $select.is(":disabled") ? " disabled" : "", $sodPrefix = "", $sodHtml = "", $sodHeight = 0, $sod, $sodListWrapper, $sodList;
+                        if ($settingsPrefix) {
+                            $sodPrefix = '<span class="sod_prefix">' + $settingsPrefix + "</span> "
+                        }
+                        if ($settingsPlaceholder && !$settingsPrefix) {
+                            $sodHtml += '<span class="sod_label sod_placeholder">' + $settingsPlaceholder + "</span>"
+                        } else {
+                            $sodHtml += '<span class="sod_label">' + $sodPrefix + "</span>"
+                        }
+                        $sod = $("<span/>", {
+                            id: $settingsId,
+                            "class": "sod_select " + $settingsClass + $selectDisabled,
+                            title: $selectTitle,
+                            tabindex: $settingsTabIndex,
+                            html: $sodHtml,
+                            "data-cycle": $settingsCycle,
+                            "data-links": $settingsLinks,
+                            "data-links-external": $settingsLinksExternal,
+                            "data-placeholder": $settingsPlaceholder,
+                            "data-prefix": $settingsPrefix,
+                            "data-filter": ""
+                        }).insertAfter(this);
+                        if (_private.isTouch()) {
+                            $sod.addClass("touch")
+                        }
+                        $sodListWrapper = $("<span/>", {"class": "sod_list_wrapper"}).appendTo($sod);
+                        $sodList = $("<span/>", {"class": "sod_list"}).appendTo($sodListWrapper);
+                        $("option, optgroup", $select).each(function (i) {
+                            _private.populateSoD($(this), $sodList, $sod)
+                        });
+                        if ($settingsSize) {
+                            $sodListWrapper.show();
+                            $(".sod_option:lt(" + $settingsSize + ")", $sodList).each(function (i) {
+                                $sodHeight += $(this).outerHeight()
+                            });
+                            $sodListWrapper.removeAttr("style");
+                            $sodList.css({"max-height": $sodHeight})
+                        }
+                        $select.appendTo($sod);
+                        $sod.on("focusin", _private.focusSod).on("click", _private.triggerSod).on("click", ".sod_option", _private.optionClick).on("mousemove", ".sod_option", _private.optionHover).on("keydown keypress", _private.keyboardUse);
+                        $select.on("change", _private.selectChange);
+                        $("html").on("click", function () {
+                            _private.blurSod($sod)
+                        });
+                        $(document).on("click", "label[for='" + $select.attr("id") + "']", function (e) {
+                            e.preventDefault();
+                            $sod.focus()
+                        })
+                    } else {
+                    }
+                })
+            }, populateSoD: function ($option, $sodList, $sod) {
+                var $sodPlaceholder = $sod.data("placeholder"), $sodPrefix = $sod.data("prefix"), $optionParent = $option.parent(), $optionText = $option.text(), $optionValue = $option.val(), $optionCustomId = $option.data("custom-id") ? $option.data("custom-id") : null, $optionCustomClass = $option.data("custom-class") ? $option.data("custom-class") : "", $optionIsDisabled = $option.is(":disabled") ? " disabled " : "", $optionIsSelected = $option.is(":selected") ? " selected active " : "", $optionLink = $option.data("link") ? " link " : "", $optionLinkExternal = $option.data("link-external") ? " linkexternal" : "";
+                if ($option.is("option")) {
+                    $("<span/>", {
+                        "class": "sod_option " + $optionCustomClass + $optionIsDisabled + $optionIsSelected + $optionLink + $optionLinkExternal,
+                        id: $optionCustomId,
+                        title: $optionText,
+                        html: $optionText,
+                        "data-value": $optionValue
+                    }).appendTo($sodList);
+                    if ($optionIsSelected && !$sodPlaceholder || $optionIsSelected && $sodPrefix) {
+                        $sod.find(".sod_label").append($optionText)
+                    }
+                    if ($optionIsSelected && $sodPlaceholder && !$sodPrefix) {
+                        $sod.data("label", $sodPlaceholder)
+                    } else {
+                        if ($optionIsSelected) {
+                            $sod.data("label", $optionText)
+                        }
+                    }
+                    if ($optionParent.is("optgroup")) {
+                        $sodList.find(".sod_option:last").addClass("groupchild");
+                        if ($optionParent.is(":disabled")) {
+                            $sodList.find(".sod_option:last").addClass("disabled")
+                        }
+                    }
+                } else {
+                    $("<span/>", {
+                        "class": "sod_option optgroup " + $optionIsDisabled,
+                        title: $option.prop("label"),
+                        html: $option.prop("label"),
+                        "data-label": $option.prop("label")
+                    }).appendTo($sodList)
+                }
+            }, focusSod: function () {
+                var $sod = $(this), $sodInFocus = $(".sod_select.focus");
+                if (!$sod.hasClass("disabled")) {
+                    _private.blurSod($sodInFocus);
+                    $sod.addClass("focus")
+                } else {
+                    _private.blurSod($sod)
+                }
+            }, triggerSod: function (e) {
+                e.stopPropagation();
+                var $sod = $(this), $sodList = $sod.find(".sod_list"), $sodPlaceholder = $sod.data("placeholder"), $optionSelected = $sod.find(".selected");
+                if (!$sod.hasClass("disabled") && !$sod.hasClass("open") && !$sod.hasClass("touch")) {
+                    $sod.addClass("open");
+                    $(".sod_select").not(this).removeClass("open focus");
+                    if ($sodPlaceholder && !$sod.data("prefix")) {
+                        $sod.find(".sod_label").addClass("sod_placeholder").html($sodPlaceholder)
+                    }
+                    _private.listScroll($sodList, $optionSelected);
+                    _private.checkViewport($sod, $sodList)
+                } else {
+                    clearTimeout($_sodViewportTimeout);
+                    $sod.removeClass("open above")
+                }
+            }, keyboardUse: function (e) {
+                var $sod = $(this), $sodList = $sod.find(".sod_list"), $sodOptions = $sod.find(".sod_option"), $sodLabel = $sod.find(".sod_label"), $sodCycle = $sod.data("cycle"), $optionActive = $sodOptions.filter(".active"), $sodFilterHit, $optionNext, $optionCycle, $scrollList, $scrollOption;
+                if (e.which !== 0 && e.charCode !== 0) {
+                    clearTimeout($_sodFilterTimeout);
+                    $sod.data("filter", $sod.data("filter") + String.fromCharCode(e.keyCode | e.charCode));
+                    $sodFilterHit = $sodOptions.filter(function () {
+                        return $(this).text().toLowerCase().indexOf($sod.data("filter").toLowerCase()) === 0
+                    }).not(".disabled, .optgroup").first();
+                    if ($sodFilterHit.length) {
+                        $optionActive.removeClass("active");
+                        $sodFilterHit.addClass("active");
+                        _private.listScroll($sodList, $sodFilterHit);
+                        $sodLabel.get(0).lastChild.nodeValue = $sodFilterHit.text()
+                    }
+                    $_sodFilterTimeout = setTimeout(function () {
+                        $sod.data("filter", "")
+                    }, 500)
+                }
+                if (e.which > 36 && e.which < 41) {
+                    if (e.which === 37 || e.which === 38) {
+                        $optionNext = $optionActive.prevAll(":not('.disabled, .optgroup')").first();
+                        $optionCycle = $sodOptions.not(".disabled, .optgroup").last()
+                    } else {
+                        if (e.which === 39 || e.which === 40) {
+                            $optionNext = $optionActive.nextAll(":not('.disabled, .optgroup')").first();
+                            $optionCycle = $sodOptions.not(".disabled, .optgroup").first()
+                        }
+                    }
+                    if (!$optionNext.hasClass("sod_option") && $sodCycle) {
+                        $optionNext = $optionCycle
+                    }
+                    if ($optionNext.hasClass("sod_option") || $sodCycle) {
+                        $optionActive.removeClass("active");
+                        $optionNext.addClass("active");
+                        $sodLabel.get(0).lastChild.nodeValue = $optionNext.text();
+                        _private.listScroll($sodList, $optionNext)
+                    }
+                    return false
+                } else {
+                    if (e.which === 13 || (e.which === 32 && $sod.hasClass("open") && $sod.data("filter") === "")) {
+                        e.preventDefault();
+                        $optionActive.click()
+                    } else {
+                        if (e.which === 32 && !$sod.hasClass("open") && $sod.data("filter") === "") {
+                            e.preventDefault();
+                            $sod.click()
+                        } else {
+                            if (e.which === 27) {
+                                _private.blurSod($sod)
+                            }
+                        }
+                    }
+                }
+            }, optionHover: function () {
+                var $option = $(this);
+                if (!$option.hasClass("disabled") && !$option.hasClass("optgroup")) {
+                    $option.siblings().removeClass("active").end().addClass("active")
+                }
+            }, optionClick: function (e) {
+                e.stopPropagation();
+                var $clicked = $(this), $sod = $clicked.closest(".sod_select"), $optionDisabled = $clicked.hasClass("disabled"), $optionOptgroup = $clicked.hasClass("optgroup"), $optionIndex = $sod.find(".sod_option:not('.optgroup')").index(this);
+                if (!$optionDisabled && !$optionOptgroup) {
+                    $sod.find(".selected, .sod_placeholder").removeClass("selected sod_placeholder");
+                    $clicked.addClass("selected");
+                    $sod.find("select option")[$optionIndex].selected = true;
+                    $sod.find("select").change()
+                }
+                clearTimeout($_sodViewportTimeout);
+                $sod.removeClass("open above")
+            }, selectChange: function () {
+                var $select = $(this), $optionSelected = $select.find(":selected"), $optionText = $optionSelected.text(), $sod = $select.closest(".sod_select");
+                $sod.find(".sod_label").get(0).lastChild.nodeValue = $optionText;
+                $sod.data("label", $optionText);
+                $_settings.onChange.call(this);
+                if (($sod.data("links") || $optionSelected.data("link")) && !$optionSelected.data("link-external")) {
+                    window.location.href = $optionSelected.val()
+                } else {
+                    if ($sod.data("links-external") || $optionSelected.data("link-external")) {
+                        window.open($optionSelected.val(), "_blank")
+                    }
+                }
+            }, blurSod: function ($sod) {
+                if ($("body").find($sod).length) {
+                    var $sodLabel = $sod.data("label"), $optionActive = $sod.find(".active"), $optionSelected = $sod.find(".selected");
+                    clearTimeout($_sodViewportTimeout);
+                    if ($sod.hasClass("focus") && !$sod.hasClass("open")) {
+                        $optionActive.click()
+                    } else {
+                        if (!$optionActive.hasClass("selected")) {
+                            $sod.find(".sod_label").get(0).lastChild.nodeValue = $sodLabel;
+                            $optionActive.removeClass("active");
+                            $optionSelected.addClass("active")
+                        }
+                    }
+                    $sod.removeClass("open focus above");
+                    $sod.blur()
+                }
+            }, checkViewport: function ($sod, $sodList) {
+                var $sodPosition = $sod[0].getBoundingClientRect(), $sodListHeight = $sodList.outerHeight();
+                if (($sodPosition.bottom + $sodListHeight + 10) > $(window).height() && ($sodPosition.top - $sodListHeight) > 10) {
+                    $sod.addClass("above")
+                } else {
+                    $sod.removeClass("above")
+                }
+                $_sodViewportTimeout = setTimeout(function () {
+                    _private.checkViewport($sod, $sodList)
+                }, 200)
+            }, listScroll: function ($sodList, $option) {
+                var $scrollList = $sodList[0].getBoundingClientRect(), $scrollOption = $option[0].getBoundingClientRect();
+                if ($scrollList.top > $scrollOption.top) {
+                    $sodList.scrollTop($sodList.scrollTop() - $scrollList.top + $scrollOption.top)
+                } else {
+                    if ($scrollList.bottom < $scrollOption.bottom) {
+                        $sodList.scrollTop($sodList.scrollTop() - $scrollList.bottom + $scrollOption.bottom)
+                    }
+                }
+            }, isTouch: function () {
+                return (("ontouchstart" in window) || (navigator.MaxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0))
+            }
+        };
+        var methods = {
+            destroy: function () {
+                return this.each(function (i) {
+                    var $select = $(this), $sod = $select.parent();
+                    if ($sod.hasClass("sod_select")) {
+                        $select.off("change");
+                        $sod.find("span").remove();
+                        $select.unwrap()
+                    } else {
+                    }
+                })
+            }, update: function () {
+                return this.each(function (i) {
+                    var $select = $(this), $sod = $select.parent(), $sodList = $sod.find(".sod_list:first");
+                    if ($sod.hasClass("sod_select")) {
+                        $sodList.empty();
+                        $sod.find(".sod_label").get(0).lastChild.nodeValue = "";
+                        if ($select.is(":disabled")) {
+                            $sod.addClass("disabled")
+                        }
+                        $("option, optgroup", $select).each(function (i) {
+                            _private.populateSoD($(this), $sodList, $sod)
+                        })
+                    } else {
+                    }
+                })
+            }, disable: function ($value) {
+                return this.each(function (i) {
+                    var $select = $(this), $sod = $select.parent();
+                    if ($sod.hasClass("sod_select")) {
+                        if (typeof $value !== "undefined") {
+                            $sod.find(".sod_list:first .sod_option[data-value='" + $value + "']").addClass("disabled");
+                            $sod.find(".sod_list:first .sod_option[data-label='" + $value + "']").nextUntil(":not(.groupchild)").addClass("disabled");
+                            $("option[value='" + $value + "'], optgroup[label='" + $value + "']", this).prop("disabled", true)
+                        } else {
+                            if ($sod.hasClass("sod_select")) {
+                                $sod.addClass("disabled");
+                                $select.prop("disabled", true)
+                            }
+                        }
+                    } else {
+                    }
+                })
+            }, enable: function ($value) {
+                return this.each(function (i) {
+                    var $select = $(this), $sod = $select.parent();
+                    if ($sod.hasClass("sod_select")) {
+                        if (typeof $value !== "undefined") {
+                            $sod.find(".sod_list:first .sod_option[data-value='" + $value + "']").removeClass("disabled");
+                            $sod.find(".sod_list:first .sod_option[data-label='" + $value + "']").nextUntil(":not(.groupchild)").removeClass("disabled");
+                            $("option[value='" + $value + "'], optgroup[label='" + $value + "']", this).prop("disabled", false)
+                        } else {
+                            if ($sod.hasClass("sod_select")) {
+                                $sod.removeClass("disabled");
+                                $select.prop("disabled", false)
+                            }
+                        }
+                    } else {
+                    }
+                })
+            }
+        };
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1))
+        } else {
+            if (typeof method === "object" || !method) {
+                return _private.initSoD.apply(this, arguments)
+            } else {
+                $.error('Select or Die: Oh no! No such method "' + method + '" for the SoD instance')
+            }
+        }
+    }
+})(jQuery);
+(function ($) {
+    $.fn.carousel = function (o) {
+        o = $.extend({
+            btnPrev: null,
+            btnNext: null,
+            btnGo: null,
+            auto: false,
+            speed: 500,
+            easing: null,
+            vertical: false,
+            circular: true,
+            visible: 1,
+            start: 0,
+            scroll: 1,
+            beforeStart: null,
+            afterEnd: null
+        }, o || {});
+        return this.each(function () {
+            var b = false, animCss = o.vertical ? "top" : "left", sizeCss = o.vertical ? "height" : "width";
+            var c = $(this), ul = $("ul", c), tLi = $("li", ul), tl = tLi.size(), v = o.visible;
+            if (c.hasClass("running")) {
+                return
+            } else {
+                c.addClass("running")
+            }
+            if (tl <= v) {
+                if (o.btnNext) {
+                    o.btnNext.addClass("vhidden");
+                    o.btnPrev.addClass("vhidden");
+                    return false
+                }
+            }
+            if (o.circular) {
+                ul.prepend(tLi.slice(tl - v - 1 + 1).clone()).append(tLi.slice(0, v).clone());
+                o.start += v
+            }
+            var f = $("li", ul), itemLength = f.size(), curr = o.start;
+            c.css("visibility", "visible");
+            var abc = o.vertical ? "none" : "left";
+            f.css({overflow: "hidden", flot: abc});
+            ul.css({margin: "0", padding: "0", position: "relative", "list-style-type": "none", "z-index": "1"});
+            c.css({overflow: "hidden", position: "relative", "z-index": "2", left: "0px"});
+            var g = o.vertical ? height(f) : width(f);
+            var h = g * itemLength;
+            var j = g * v;
+            var interval = setInterval(function () {
+            });
+            f.css({width: f.width(), height: f.height()});
+            ul.css(sizeCss, h + "px").css(animCss, -(curr * g));
+            c.css(sizeCss, j + "px");
+            if (o.btnPrev) {
+                $(o.btnPrev, c.parent().parent()).click(function () {
+                    return go(curr - o.scroll)
+                })
+            }
+            if (o.btnNext) {
+                $(o.btnNext, c.parent().parent()).click(function () {
+                    return go(curr + o.scroll)
+                })
+            }
+            c.hover(function () {
+                if (interval) {
+                    clearInterval(interval)
+                }
+            }, function () {
+                if (!o.auto) {
+                    return
+                }
+                interval = setInterval(function () {
+                    go(curr + o.scroll)
+                }, o.auto + o.speed)
+            });
+            var time;
+            if (o.btnGo) {
+                $.each($(o.btnGo, c.parent().parent()), function (i, a) {
+                    $(a).hover(function () {
+                        clearInterval(interval);
+                        time = setTimeout(function () {
+                            go(o.circular ? o.visible * (i + 1) : i)
+                        }, 100)
+                    }, function () {
+                        clearTimeout(time);
+                        if (!o.auto) {
+                            return
+                        }
+                        interval = setInterval(function () {
+                            go(curr + o.scroll)
+                        }, o.auto + o.speed)
+                    })
+                })
+            }
+            if (o.auto) {
+                interval = setInterval(function () {
+                    go(curr + o.scroll)
+                }, o.auto + o.speed)
+            }
+            function vis() {
+                return f.slice(curr).slice(0, v)
+            }
+
+            function go(a) {
+                if (!b) {
+                    if (o.circular) {
+                        if (a <= o.start - v - 1) {
+                            ul.css(animCss, -((itemLength - (v * 2)) * g) + "px");
+                            curr = a == o.start - v - 1 ? itemLength - (v * 2) - 1 : itemLength - (v * 2) - o.scroll
+                        } else {
+                            if (a >= itemLength - v + 1) {
+                                ul.css(animCss, -((v) * g) + "px");
+                                curr = a == itemLength - v + 1 ? v + 1 : v + o.scroll
+                            } else {
+                                curr = a
+                            }
+                        }
+                    } else {
+                        if (a < 0 || a > itemLength - v) {
+                            return
+                        } else {
+                            curr = a
+                        }
+                    }
+                    if (o.beforeStart) {
+                        o.beforeStart.call(this, vis(), curr, tl)
+                    }
+                    b = true;
+                    ul.animate(animCss == "left" ? {left: -(curr * g)} : {top: -(curr * g)}, o.speed, o.easing, function () {
+                        if (o.afterEnd) {
+                            o.afterEnd.call(this, vis(), curr, tl)
+                        }
+                        b = false
+                    });
+                    if (!o.circular) {
+                        $(o.btnPrev + "," + o.btnNext).removeClass("disabled");
+                        $((curr - o.scroll < 0 && o.btnPrev) || (curr + o.scroll > itemLength - v && o.btnNext) || []).addClass("disabled")
+                    }
+                }
+                return false
+            }
+        })
+    };
+    function css(a, b) {
+        return parseInt($.css(a[0], b)) || 0
+    }
+
+    function width(a) {
+        try {
+            return a[0].offsetWidth + css(a, "marginLeft") + css(a, "marginRight")
+        } catch (e) {
+            return 0
+        }
+    }
+
+    function height(a) {
+        try {
+            return a[0].offsetHeight + css(a, "marginTop") + css(a, "marginBottom")
+        } catch (e) {
+            return 0
+        }
+    }
+})(jQuery);
+(function ($) {
+    $.confirm = function (content, callbackOK, callbackCancel) {
+        var tpl = [];
+        tpl.push('<div class="dialog confirm">');
+        tpl.push('    <a class="close"></a>');
+        tpl.push('    <h3 class="title">提示</h3>');
+        tpl.push('    <div class="body">');
+        tpl.push("        <h4>" + content + "</h4>");
+        tpl.push("    </div>");
+        tpl.push('    <div class="buttons">');
+        tpl.push('        <a href="javascript:;" class="blue-btn accept">确认</a>');
+        tpl.push('        <a href="javascript:;" class="grey-btn cancel">取消</a>');
+        tpl.push("    </div>");
+        tpl.push("</div>");
+        if ($(".dialog.confirm").length) {
+            return false
+        }
+        $("body").append(tpl.join(""));
+        var top = $("body").scrollTop();
+        tpl.length = 0;
+        if (!$("#overlay").length) {
+            $("body").append('<div id="overlay"></div>')
+        }
+        $("html,body").css({height: "100%", overflow: "hidden"});
+        $(".dialog.confirm .accept").on("click", function () {
+            $(this).parents(".confirm").remove();
+            $("#overlay").remove();
+            $("html,body").css({height: "auto", overflow: "auto"});
+            $("body").scrollTop(top);
+            if (typeof callbackOK == "function") {
+                callbackOK()
+            }
+        });
+        $(".dialog.confirm a.close, .dialog.confirm .cancel").on("click", function () {
+            $(this).parents(".confirm").remove();
+            $("#overlay").remove();
+            $("html,body").css({height: "auto", overflow: "auto"});
+            $("body").scrollTop(top);
+            if (typeof callbackCancel == "function") {
+                callbackCancel()
+            }
+        })
+    }
+})(jQuery);
+(function (factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["jquery"], factory)
+    } else {
+        if (typeof exports === "object") {
+            factory(require("jquery"))
+        } else {
+            factory(jQuery)
+        }
+    }
+}(function ($) {
+    var pluses = /\+/g;
+
+    function encode(s) {
+        return config.raw ? s : encodeURIComponent(s)
+    }
+
+    function decode(s) {
+        return config.raw ? s : decodeURIComponent(s)
+    }
+
+    function stringifyCookieValue(value) {
+        return encode(config.json ? JSON.stringify(value) : String(value))
+    }
+
+    function parseCookieValue(s) {
+        if (s.indexOf('"') === 0) {
+            s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\")
+        }
+        try {
+            s = decodeURIComponent(s.replace(pluses, " "));
+            return config.json ? JSON.parse(s) : s
+        } catch (e) {
+        }
+    }
+
+    function read(s, converter) {
+        var value = config.raw ? s : parseCookieValue(s);
+        return $.isFunction(converter) ? converter(value) : value
+    }
+
+    var config = $.cookie = function (key, value, options) {
+        if (arguments.length > 1 && !$.isFunction(value)) {
+            options = $.extend({}, config.defaults, options);
+            if (typeof options.expires === "number") {
+                var days = options.expires, t = options.expires = new Date();
+                t.setTime(+t + days * 86400000)
+            }
+            return (document.cookie = [encode(key), "=", stringifyCookieValue(value), options.expires ? "; expires=" + options.expires.toUTCString() : "", options.path ? "; path=" + options.path : "", options.domain ? "; domain=" + options.domain : "", options.secure ? "; secure" : ""].join(""))
+        }
+        var result = key ? undefined : {};
+        var cookies = document.cookie ? document.cookie.split("; ") : [];
+        for (var i = 0, l = cookies.length; i < l; i++) {
+            var parts = cookies[i].split("=");
+            var name = decode(parts.shift());
+            var cookie = parts.join("=");
+            if (key && key === name) {
+                result = read(cookie, value);
+                break
+            }
+            if (!key && (cookie = read(cookie)) !== undefined) {
+                result[name] = cookie
+            }
+        }
+        return result
+    };
+    config.defaults = {};
+    $.removeCookie = function (key, options) {
+        if ($.cookie(key) === undefined) {
+            return false
+        }
+        $.cookie(key, "", $.extend({}, options, {expires: -1}));
+        return !$.cookie(key)
+    }
+}));
+(function ($) {
+    $.fn.countdown = function (options) {
+        var defaults = {
+            attrName: "data-diff",
+            tmpl: '<span class="hour">%{h}</span><span class="minute">%{m}</span>分钟<span class="second">%{s}</span>秒',
+            end: "活动已经结束",
+            afterEnd: null
+        };
+        options = $.extend(defaults, options);
+        function trimZero(str) {
+            return parseInt(str.replace(/^0/g, ""))
+        }
+
+        function getDiffTime(str) {
+            var m;
+            if ((m = /^(\d{4})[^\d]+(\d{1,2})[^\d]+(\d{1,2})\s+(\d{2})[^\d]+(\d{1,2})[^\d]+(\d{1,2})$/.exec(str))) {
+                var year = trimZero(m[1]), month = trimZero(m[2]) - 1, day = trimZero(m[3]), hour = trimZero(m[4]), minute = trimZero(m[5]), second = trimZero(m[6]);
+                return Math.floor((new Date(year, month, day, hour, minute, second).getTime() - new Date().getTime()) / 1000)
+            }
+            return parseInt(str)
+        }
+
+        function format(diff) {
+            var tmpl = options.tmpl, day, hour, minute, second;
+            day = /%\{d\}/.test(tmpl) ? Math.floor(diff / 86400) : 0;
+            hour = Math.floor((diff - day * 86400) / 3600);
+            minute = Math.floor((diff - day * 86400 - hour * 3600) / 60);
+            second = diff - day * 86400 - hour * 3600 - minute * 60;
+            tmpl = tmpl.replace(/%\{d\}/ig, day).replace(/%\{h\}/ig, hour).replace(/%\{m\}/ig, minute).replace(/%\{s\}/ig, second);
+            return tmpl
+        }
+
+        return this.each(function () {
+            var el = this, diff = getDiffTime($(el).attr(options.attrName));
+
+            function update() {
+                if (diff <= 0) {
+                    $(el).html(options.end);
+                    if (options.afterEnd) {
+                        options.afterEnd()
+                    }
+                    return
+                }
+                $(el).html(format(diff));
+                setTimeout(function () {
+                    diff--;
+                    update()
+                }, 1000)
+            }
+
+            update()
+        })
+    }
+})(jQuery);
+(function ($) {
+    $.dialog = function (o) {
+        var defaults = {
+            id: "win",
+            title: "提示",
+            wrapClass: "",
+            bodyClass: "emojibody",
+            bodyHtml: "",
+            butClass: "",
+            btnHtml: '<a href="javascript:void(0);" class="blue-btn cancel">关闭</a>',
+            bindEvents: new Function()
+        };
+        var obj = $.extend({}, defaults, o);
+        var t = [];
+        var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+        var wH = $(window).height();
+        var ttt = wH / 2 + scrollTop + 100;
+        var removeDialog = function (target) {
+            $("#" + target + ", #overlay").remove();
+            enable_scroll()
+        };
+        t.push('<div id="' + obj.id + '" class="dialog ' + obj.wrapClass + '" style="top: ' + ttt + 'px;">');
+        t.push('<a class="close"></a>');
+        t.push('<h3 class="title">' + obj.title + "</h3>");
+        t.push('<div class="' + obj.bodyClass + '">' + obj.bodyHtml + "</div>");
+        if (obj.butClass != "") {
+            if (obj.butClass != "buttons") {
+                t.push('<div class="buttons ' + obj.butClass + '">' + obj.btnHtml + "</div>")
+            } else {
+                t.push('<div class="buttons">' + obj.btnHtml + "</div>")
+            }
+        }
+        t.push("</div>");
+        if ($(".dialog").length) {
+            return false
+        }
+        $("body").append(t.join(""));
+        var ftop = wH / 2 + scrollTop - $("#" + obj.id).height() / 2 + 175;
+        $("#" + obj.id).css("top", ftop + "px");
+        t.length = 0;
+        if (!$("#overlay").length) {
+            $("body").append('<div id="overlay" style="top:' + scrollTop + 'px;"></div>')
+        } else {
+            $("#overlay").css({"top": scrollTop})
+        }
+        disable_scroll();
+        obj.bindEvents(removeDialog)
+    }
+})(jQuery);
+(function ($) {
+    $.fn.lazyload = function (threshold, onload, onerror) {
+        var $w = $(window), th = threshold || 0, retina = window.devicePixelRatio > 1, attrib = retina ? "data-src-retina" : "data-src", images = this, loaded;
+        this.one("lazyload", function () {
+            var source = this.getAttribute(attrib);
+            source = source || this.getAttribute("data-src");
+            var that = this;
+            if (source) {
+                var img = new Image();
+                img.onload = function () {
+                    that.setAttribute("src", source);
+                    if (typeof onload === "function") {
+                        onload.call(that)
+                    }
+                };
+                img.onerror = function () {
+                    if (typeof onerror === "function") {
+                        onerror.call(that)
+                    }
+                };
+                img.src = source
+            }
+        });
+        function lazyload() {
+            var inview = images.filter(function () {
+                var $e = $(this);
+                if ($e.is(":hidden")) {
+                    return
+                }
+                var wt = $w.scrollTop(), wb = wt + $w.height(), et = $e.offset().top, eb = et + $e.height();
+                return true
+            });
+            loaded = inview.trigger("lazyload");
+            images = images.not(loaded)
+        }
+
+        lazyload();
+        setTimeout(function () {
+            lazyload()
+        }, 500);
+        return this
+    }
+})(window.jQuery);
+(function ($) {
+    $.fn.mhover = function (option) {
+        var setting = $.extend({
+            target: ".sliderList ul li",
+            content: ".imgBox ul li",
+            content2: "",
+            curClass: "current",
+            timeout: 100,
+            auto: false
+        }, option || {});
+        return this.each(function () {
+            var _self = $(this), _time, _stop = false, _cur = 0, targets = _self.find(setting.target), contents = _self.find(setting.content);
+            contents2 = _self.find(setting.content2);
+            targets.eq(0).addClass(setting.curClass);
+            contents.eq(0).addClass(setting.curClass);
+            if (setting.content2) {
+                contents2.eq(0).addClass(setting.curClass)
+            }
+            if (setting.auto) {
+                var length = targets.length;
+                setInterval(function () {
+                    if (_stop) {
+                        return
+                    }
+                    _cur++;
+                    if (_cur >= length) {
+                        _cur = 0
+                    }
+                    targets.removeClass(setting.curClass);
+                    targets.eq(_cur).addClass(setting.curClass).find("img").trigger("lazyload");
+                    contents.removeClass(setting.curClass);
+                    contents.eq(_cur).addClass(setting.curClass).find("img").trigger("lazyload");
+                    if (setting.content2) {
+                        contents2.removeClass(setting.curClass).eq(_cur).addClass(setting.curClass)
+                    }
+                }, setting.auto);
+                _self.hover(function () {
+                    _stop = true
+                }, function () {
+                    _stop = false
+                })
+            }
+            _self.delegate(targets, "mouseover", function (event) {
+                var _e = $(event.target).parents(setting.target);
+                if (_e.length < 1) {
+                    return false
+                }
+                _time = setTimeout(function () {
+                    targets.removeClass(setting.curClass);
+                    _e.addClass(setting.curClass).find("img").trigger("lazyload");
+                    contents.removeClass(setting.curClass);
+                    contents.eq(_e.index()).addClass(setting.curClass).find("img").trigger("lazyload");
+                    _cur = _e.index()
+                }, setting.timeout);
+                $(_e).bind("mouseout", function () {
+                    clearTimeout(_time)
+                })
+            })
+        })
+    }
+})(jQuery);
+jQuery.extend({
+    stringify: function stringify(obj) {
+        if ("JSON" in window) {
+            return JSON.stringify(obj)
+        }
+        var t = typeof(obj);
+        if (t != "object" || obj === null) {
+            if (t == "string") {
+                obj = '"' + obj + '"'
+            }
+            return String(obj)
+        } else {
+            var n, v, json = [], arr = (obj && obj.constructor == Array);
+            for (n in obj) {
+                v = obj[n];
+                t = typeof(v);
+                if (obj.hasOwnProperty(n)) {
+                    if (t == "string") {
+                        v = '"' + v + '"'
+                    } else {
+                        if (t == "object" && v !== null) {
+                            v = jQuery.stringify(v)
+                        }
+                    }
+                    json.push((arr ? "" : '"' + n + '":') + String(v))
+                }
+            }
+            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}")
+        }
+    }
+});
+(function ($) {
+    var container = $("#container");
+    container.on("click", ".tabBarUl li", function () {
+        var me = $(this);
+        var fa = me.parent();
+        var sb = fa.find("li");
+        if (me.hasClass("current-")) {
+            return false
+        } else {
+            var cu = me.siblings(".current-");
+            cu.removeClass("arrow");
+            cu.removeClass("arrow-b");
+            cu.removeClass("current-");
+            me.addClass("current-");
+            me.addClass("arrow");
+            me.addClass("arrow-b");
+            var idx = sb.index(me);
+            var bo = me.parents(".tabbar").siblings(".rank-detail");
+            var tb = bo.find(".rank-tab");
+            var l = tb.size();
+            for (var i = 0; i < l; i++) {
+                var o = tb.eq(i);
+                if (!o.hasClass("hidden")) {
+                    o.addClass("hidden")
+                } else {
+                    if (i == idx) {
+                        o.removeClass("hidden");
+                        window.refresh()
+                    }
+                }
+            }
+        }
+    }).on("click", ".rankbar .rankbara li", function () {
+        var me = $(this);
+        var fa = me.parent();
+        var sb = fa.find("li");
+        if (me.hasClass("current-") || me.hasClass("current")) {
+            return false
+        } else {
+            var cu = me.siblings(".current-");
+            cu.removeClass("arrow");
+            cu.removeClass("arrow-b");
+            cu.removeClass("current-");
+            me.addClass("current-");
+            me.addClass("arrow");
+            me.addClass("arrow-b");
+            var idx = sb.index(me);
+            var bo = me.parents(".rankbar");
+            var tb = bo.find(".rankbarb");
+            var l = tb.size();
+            for (var i = 0; i < l; i++) {
+                var o = tb.eq(i);
+                if (!o.hasClass("hidden")) {
+                    o.addClass("hidden")
+                } else {
+                    if (i == idx) {
+                        o.removeClass("hidden");
+                        window.refresh()
+                    }
+                }
+            }
+        }
+    }).on("click", ".girlTab li", function () {
+    }).on("click", ".Jtab .tabbar li", function () {
+    }).on("mouseenter", ".Jtab .index-tab-title li", function () {
+        var me = $(this);
+        var fa = me.parent();
+        var sb = fa.find("li");
+        if (me.hasClass("current")) {
+            return false
+        } else {
+            var cu = me.siblings(".current");
+            cu.removeClass("current");
+            me.addClass("current");
+            var idx = sb.index(me);
+            var bo = me.parents(".Jtab").find(".index-new-book");
+            var l = bo.size();
+            for (var i = 0; i < l; i++) {
+                var o = bo.eq(i);
+                if (!o.hasClass("hidden")) {
+                    o.addClass("hidden")
+                } else {
+                    if (i == idx) {
+                        o.removeClass("hidden");
+                        window.refresh()
+                    }
+                }
+            }
+        }
+    }).on("click", ".boy-girl-tab .space-tabbar li", function () {
+        var me = $(this);
+        var fa = me.parent();
+        var sb = fa.find("li");
+        if (me.hasClass("current")) {
+            return false
+        } else {
+            var cu = me.siblings(".current");
+            cu.removeClass("current");
+            me.addClass("current");
+            var idx = sb.index(me);
+            var bo = me.parents(".boy-girl-tab").find(".bg-tab-content");
+            var l = bo.size();
+            for (var i = 0; i < l; i++) {
+                var o = bo.eq(i);
+                if (!o.hasClass("hidden")) {
+                    o.addClass("hidden")
+                } else {
+                    if (i == idx) {
+                        o.removeClass("hidden");
+                        window.refresh()
+                    }
+                }
+            }
+        }
+    });
+    $.fn.tab = function (option) {
+        return {}
+    }
+})(jQuery);
+(function (jQuery) {
+    jQuery.fn.textlimit = function (counter_el, thelimit, reverse, speed) {
+        var charDelSpeed = speed || 15;
+        var toggleCharDel = speed != -1;
+        var toggleTrim = true;
+        var that = this[0];
+        var isCtrl = false;
+        updateCounter();
+        function updateCounter() {
+            if (typeof that == "object" && !reverse) {
+                jQuery(counter_el).text(thelimit - that.value.length)
+            } else {
+                if (typeof that == "object") {
+                    jQuery(counter_el).text(that.value.length + "/" + thelimit)
+                }
+            }
+        }
+
+        this.keydown(function (e) {
+            if (e.which == 17) {
+                isCtrl = true
+            }
+            var ctrl_a = (e.which == 65 && isCtrl == true) ? true : false;
+            var ctrl_v = (e.which == 86 && isCtrl == true) ? true : false;
+            if (this.value.length >= thelimit && e.which != "8" && e.which != "46" && ctrl_a == false && ctrl_v == false) {
+                e.preventDefault()
+            }
+        });
+        this.bind("input", function (e) {
+            updateCounter()
+        });
+        this.keyup(function (e) {
+            updateCounter();
+            if (e.which == 17) {
+                isCtrl = false
+            }
+            if (this.value.length >= thelimit && toggleTrim) {
+                if (toggleCharDel) {
+                    if ((this.value.length - thelimit) > 10) {
+                        that.value = that.value.substr(0, thelimit + 100)
+                    }
+                    var init = setInterval(function () {
+                        if (that.value.length <= thelimit) {
+                            init = clearInterval(init);
+                            updateCounter()
+                        } else {
+                            that.value = that.value.substring(0, that.value.length - 1)
+                        }
+                    }, charDelSpeed)
+                } else {
+                    this.value = that.value.substr(0, thelimit)
+                }
+            }
+        })
+    }
+})(jQuery);
+(function ($, win, undef) {
+    var errorobj = null, msgobj = null, msghidden = true;
+    var tipmsg = {
+        tit: "提示信息",
+        w: {
+            "*": "不能为空！",
+            "*6-16": "请填写6到16位任意字符！",
+            "n": "请填写数字!",
+            "n6-16": "请填写6到16位数字！",
+            "s": "不能输入特殊字符！",
+            "s6-18": "请填写6到18位字符！",
+            "p": "请填写邮政编码!",
+            "m": "请填写手机号码!",
+            "e": "邮箱地址格式不对!",
+            "url": "请填写网址!"
+        },
+        def: "请填写正确信息!",
+        undef: "datatype未定义！",
+        reck: "两次输入的内容不一致！",
+        r: "验证通过!",
+        c: "正在校验…",
+        s: "请{填写|选择}{0|信息}！",
+        v: "所填信息没有经过验证,请稍后…",
+        p: "正在提交数据…"
+    };
+    $.Tipmsg = tipmsg;
+    var Validform = function (forms, settings, inited) {
+        var settings = $.extend({}, Validform.defaults, settings);
+        settings.datatype && $.extend(Validform.util.dataType, settings.datatype);
+        var brothers = this;
+        brothers.tipmsg = {w: {}};
+        brothers.settings = settings;
+        brothers.forms = forms;
+        brothers.objects = [];
+        if (inited === true) {
+            return false
+        }
+        forms.each(function () {
+            if (this.validform_inited == "inited") {
+                return true
+            }
+            this.validform_inited = "inited";
+            var $this = $(this);
+            this.validform_status = "normal";
+            this.validform_label = settings.label;
+            $this.data("tipmsg", brothers.tipmsg);
+            $this.delegate("[datatype]", "blur", function () {
+                var subpost = arguments[1];
+                Validform.util.check.call(this, $this, brothers, subpost)
+            });
+            Validform.util.enhance.call($this, settings.tiptype, settings.usePlugin, settings.tipSweep);
+            settings.btnSubmit && $this.find(settings.btnSubmit).bind("click", function () {
+                $this.trigger("submit");
+                return false
+            });
+            $this.submit(function () {
+                var subflag = Validform.util.submitForm.call($this, settings);
+                subflag === undef && (subflag = true);
+                return subflag
+            });
+            $this.find("[type='reset']").add($this.find(settings.btnReset)).bind("click", function () {
+                Validform.util.resetForm.call($this)
+            })
+        });
+        if (settings.tiptype == 1 || (settings.tiptype == 2 || settings.tiptype == 3) && settings.ajaxPost) {
+            creatMsgbox()
+        }
+    };
+    Validform.defaults = {tiptype: 2, tipSweep: false, showAllError: false, postonce: true, ajaxPost: false};
+    Validform.util = {
+        dataType: {
+            "*": /[\w\W]+/,
+            "*6-16": /^[\w\W]{6,16}$/,
+            "n": /^\d+$/,
+            "n6-16": /^\d{6,16}$/,
+            "s": /^[\u4E00-\u9FA5\uf900-\ufa2d\w\.\s]+$/,
+            "s6-18": /^[\u4E00-\u9FA5\uf900-\ufa2d\w\.\s]{6,18}$/,
+            "p": /^[0-9]{6}$/,
+            "m": /^13[0-9]{9}$|14[0-9]{9}|15[0-9]{9}$|18[0-9]{9}$/,
+            "e": /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
+            "url": /^(\w+:\/\/)?\w+(\.\w+)+.*$/
+        }, toString: Object.prototype.toString, isEmpty: function (val) {
+            return val === "" || val === $.trim(this.attr("tip"))
+        }, getValue: function (obj) {
+            var inputval, curform = this;
+            if (obj.is(":radio")) {
+                inputval = curform.find(":radio[name='" + obj.attr("name") + "']:checked").val();
+                inputval = inputval === undef ? "" : inputval
+            } else {
+                if (obj.is(":checkbox")) {
+                    inputval = "";
+                    curform.find(":checkbox[name='" + obj.attr("name") + "']:checked").each(function () {
+                        inputval += $(this).val() + ","
+                    });
+                    inputval = inputval === undef ? "" : inputval
+                } else {
+                    inputval = obj.val()
+                }
+            }
+            inputval = $.trim(inputval);
+            return Validform.util.isEmpty.call(obj, inputval) ? "" : inputval
+        }, enhance: function (tiptype, usePlugin, tipSweep, addRule) {
+            var curform = this;
+            curform.find("[datatype]").each(function () {
+                if (tiptype == 2) {
+                    if ($(this).parent().next().find(".Validform_checktip").length == 0) {
+                        $(this).parent().next().append("<span class='Validform_checktip' />")
+                    }
+                } else {
+                    if (tiptype == 3 || tiptype == 4) {
+                        if ($(this).siblings(".Validform_checktip").length == 0) {
+                            $(this).parent().append("<span class='Validform_checktip' />")
+                        }
+                    }
+                }
+            });
+            curform.find("input[recheck]").each(function () {
+                if (this.validform_inited == "inited") {
+                    return true
+                }
+                this.validform_inited = "inited";
+                var _this = $(this);
+                var recheckinput = curform.find("input[name='" + $(this).attr("recheck") + "']");
+                recheckinput.bind("keyup", function () {
+                    if (recheckinput.val() == _this.val() && recheckinput.val() != "") {
+                        if (recheckinput.attr("tip")) {
+                            if (recheckinput.attr("tip") == recheckinput.val()) {
+                                return false
+                            }
+                        }
+                        _this.trigger("blur")
+                    }
+                }).bind("blur", function () {
+                    if (recheckinput.val() != _this.val() && _this.val() != "") {
+                        if (_this.attr("tip")) {
+                            if (_this.attr("tip") == _this.val()) {
+                                return false
+                            }
+                        }
+                        _this.trigger("blur")
+                    }
+                })
+            });
+            curform.find("[tip]").each(function () {
+                if (this.validform_inited == "inited") {
+                    return true
+                }
+                this.validform_inited = "inited";
+                var defaultvalue = $(this).attr("tip");
+                var altercss = $(this).attr("altercss");
+                $(this).focus(function () {
+                    if ($(this).val() == defaultvalue) {
+                        $(this).val("");
+                        if (altercss) {
+                            $(this).removeClass(altercss)
+                        }
+                    }
+                }).blur(function () {
+                    if ($.trim($(this).val()) === "") {
+                        $(this).val(defaultvalue);
+                        if (altercss) {
+                            $(this).addClass(altercss)
+                        }
+                    }
+                })
+            });
+            curform.find(":checkbox[datatype],:radio[datatype]").each(function () {
+                if (this.validform_inited == "inited") {
+                    return true
+                }
+                this.validform_inited = "inited";
+                var _this = $(this);
+                var name = _this.attr("name");
+                curform.find("[name='" + name + "']").filter(":checkbox,:radio").bind("click", function () {
+                    setTimeout(function () {
+                        _this.trigger("blur")
+                    }, 0)
+                })
+            });
+            curform.find("select[datatype][multiple]").bind("click", function () {
+                var _this = $(this);
+                setTimeout(function () {
+                    _this.trigger("blur")
+                }, 0)
+            });
+            Validform.util.usePlugin.call(curform, usePlugin, tiptype, tipSweep, addRule)
+        }, usePlugin: function (plugin, tiptype, tipSweep, addRule) {
+            var curform = this, plugin = plugin || {};
+            if (curform.find("input[plugin='swfupload']").length && typeof(swfuploadhandler) != "undefined") {
+                var custom = {
+                    custom_settings: {
+                        form: curform, showmsg: function (msg, type, obj) {
+                            Validform.util.showmsg.call(curform, msg, tiptype, {
+                                obj: curform.find("input[plugin='swfupload']"),
+                                type: type,
+                                sweep: tipSweep
+                            })
+                        }
+                    }
+                };
+                custom = $.extend(true, {}, plugin.swfupload, custom);
+                curform.find("input[plugin='swfupload']").each(function (n) {
+                    if (this.validform_inited == "inited") {
+                        return true
+                    }
+                    this.validform_inited = "inited";
+                    $(this).val("");
+                    swfuploadhandler.init(custom, n)
+                })
+            }
+            if (curform.find("input[plugin='datepicker']").length && $.fn.datePicker) {
+                plugin.datepicker = plugin.datepicker || {};
+                if (plugin.datepicker.format) {
+                    Date.format = plugin.datepicker.format;
+                    delete plugin.datepicker.format
+                }
+                if (plugin.datepicker.firstDayOfWeek) {
+                    Date.firstDayOfWeek = plugin.datepicker.firstDayOfWeek;
+                    delete plugin.datepicker.firstDayOfWeek
+                }
+                curform.find("input[plugin='datepicker']").each(function (n) {
+                    if (this.validform_inited == "inited") {
+                        return true
+                    }
+                    this.validform_inited = "inited";
+                    plugin.datepicker.callback && $(this).bind("dateSelected", function () {
+                        var d = new Date($.event._dpCache[this._dpId].getSelected()[0]).asString(Date.format);
+                        plugin.datepicker.callback(d, this)
+                    });
+                    $(this).datePicker(plugin.datepicker)
+                })
+            }
+            if (curform.find("input[plugin*='passwordStrength']").length && $.fn.passwordStrength) {
+                plugin.passwordstrength = plugin.passwordstrength || {};
+                plugin.passwordstrength.showmsg = function (obj, msg, type) {
+                    Validform.util.showmsg.call(curform, msg, tiptype, {obj: obj, type: type, sweep: tipSweep})
+                };
+                curform.find("input[plugin='passwordStrength']").each(function (n) {
+                    if (this.validform_inited == "inited") {
+                        return true
+                    }
+                    this.validform_inited = "inited";
+                    $(this).passwordStrength(plugin.passwordstrength)
+                })
+            }
+            if (addRule != "addRule" && plugin.jqtransform && $.fn.jqTransSelect) {
+                var jqTransformHideSelect = function (oTarget) {
+                    var ulVisible = $(".jqTransformSelectWrapper ul:visible");
+                    ulVisible.each(function () {
+                        var oSelect = $(this).parents(".jqTransformSelectWrapper:first").find("select").get(0);
+                        if (!(oTarget && oSelect.oLabel && oSelect.oLabel.get(0) == oTarget.get(0))) {
+                            $(this).hide()
+                        }
+                    })
+                };
+                var jqTransformCheckExternalClick = function (event) {
+                    if ($(event.target).parents(".jqTransformSelectWrapper").length === 0) {
+                        jqTransformHideSelect($(event.target))
+                    }
+                };
+                var jqTransformAddDocumentListener = function () {
+                    $(document).mousedown(jqTransformCheckExternalClick)
+                };
+                if (plugin.jqtransform.selector) {
+                    curform.find(plugin.jqtransform.selector).filter('input:submit, input:reset, input[type="button"]').jqTransInputButton();
+                    curform.find(plugin.jqtransform.selector).filter("input:text, input:password").jqTransInputText();
+                    curform.find(plugin.jqtransform.selector).filter("input:checkbox").jqTransCheckBox();
+                    curform.find(plugin.jqtransform.selector).filter("input:radio").jqTransRadio();
+                    curform.find(plugin.jqtransform.selector).filter("textarea").jqTransTextarea();
+                    if (curform.find(plugin.jqtransform.selector).filter("select").length > 0) {
+                        curform.find(plugin.jqtransform.selector).filter("select").jqTransSelect();
+                        jqTransformAddDocumentListener()
+                    }
+                } else {
+                    curform.jqTransform()
+                }
+                curform.find(".jqTransformSelectWrapper").find("li a").click(function () {
+                    $(this).parents(".jqTransformSelectWrapper").find("select").trigger("blur")
+                })
+            }
+        }, getNullmsg: function (curform) {
+            var obj = this;
+            var reg = /[\u4E00-\u9FA5\uf900-\ufa2da-zA-Z\s]+/g;
+            var nullmsg;
+            var label = curform[0].validform_label || ".Validform_label";
+            label = obj.siblings(label).text() || obj.siblings().find(label).text() || obj.parent().siblings(label).text() || obj.parent().siblings().find(label).text();
+            label = label.match(reg) || [""];
+            reg = /\{(.+)\|(.+)\}/;
+            nullmsg = curform.data("tipmsg").s || tipmsg.s;
+            label = label[0].replace(/\s(?![a-zA-Z])/g, "");
+            if (label != "") {
+                nullmsg = nullmsg.replace(/\{0\|(.+)\}/, label);
+                if (obj.attr("recheck")) {
+                    nullmsg = nullmsg.replace(/\{(.+)\}/, "");
+                    obj.attr("nullmsg", nullmsg);
+                    return nullmsg
+                }
+            } else {
+                nullmsg = obj.is(":checkbox,:radio,select") ? nullmsg.replace(/\{0\|(.+)\}/, "") : nullmsg.replace(/\{0\|(.+)\}/, "$1")
+            }
+            nullmsg = obj.is(":checkbox,:radio,select") ? nullmsg.replace(reg, "$2") : nullmsg.replace(reg, "$1");
+            obj.attr("nullmsg", nullmsg);
+            return nullmsg
+        }, getErrormsg: function (curform, datatype, recheck) {
+            var obj = this;
+            var regxp = /^(.+?)((\d+)-(\d+))?$/, regxp2 = /^(.+?)(\d+)-(\d+)$/, regxp3 = /(.*?)\d+(.+?)\d+(.*)/, mac = datatype.match(regxp), temp, str;
+            if (recheck == "recheck") {
+                str = curform.data("tipmsg").reck || tipmsg.reck;
+                return str
+            }
+            if (mac[0] in tipmsg.w) {
+                return curform.data("tipmsg").w[mac[0]] || tipmsg.w[mac[0]]
+            }
+            for (var name in tipmsg.w) {
+                if (name.indexOf(mac[1]) != -1 && regxp2.test(name)) {
+                    str = (curform.data("tipmsg").w[name] || tipmsg.w[name]).replace(regxp3, "$1" + mac[3] + "$2" + mac[4] + "$3");
+                    tipmsg.w[mac[0]] = str;
+                    return str
+                }
+            }
+            return curform.data("tipmsg").def || tipmsg.def
+        }, _regcheck: function (datatype, gets, obj, curform) {
+            var curform = curform, info = null, passed = false, reg = /\/.+\//g, regex = /^(.+?)(\d+)-(\d+)$/, type = 3;
+            if (reg.test(datatype)) {
+                var regstr = datatype.match(reg)[0].slice(1, -1);
+                var param = datatype.replace(reg, "");
+                var rexp = RegExp(regstr, param);
+                passed = rexp.test(gets)
+            } else {
+                if (Validform.util.toString.call(Validform.util.dataType[datatype]) == "[object Function]") {
+                    passed = Validform.util.dataType[datatype](gets, obj, curform, Validform.util.dataType);
+                    if (passed === true || passed === undef) {
+                        passed = true
+                    } else {
+                        info = passed;
+                        passed = false
+                    }
+                } else {
+                    if (!(datatype in Validform.util.dataType)) {
+                        var mac = datatype.match(regex), temp;
+                        if (!mac) {
+                            passed = false;
+                            info = curform.data("tipmsg").undef || tipmsg.undef
+                        } else {
+                            for (var name in Validform.util.dataType) {
+                                temp = name.match(regex);
+                                if (!temp) {
+                                    continue
+                                }
+                                if (mac[1] === temp[1]) {
+                                    var str = Validform.util.dataType[name].toString(), param = str.match(/\/[mgi]*/g)[1].replace("/", ""), regxp = new RegExp("\\{" + temp[2] + "," + temp[3] + "\\}", "g");
+                                    str = str.replace(/\/[mgi]*/g, "/").replace(regxp, "{" + mac[2] + "," + mac[3] + "}").replace(/^\//, "").replace(/\/$/, "");
+                                    Validform.util.dataType[datatype] = new RegExp(str, param);
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    if (Validform.util.toString.call(Validform.util.dataType[datatype]) == "[object RegExp]") {
+                        passed = Validform.util.dataType[datatype].test(gets)
+                    }
+                }
+            }
+            if (passed) {
+                type = 2;
+                info = obj.attr("sucmsg") || curform.data("tipmsg").r || tipmsg.r;
+                if (obj.attr("recheck")) {
+                    var theother = curform.find("input[name='" + obj.attr("recheck") + "']:first");
+                    if (gets != theother.val()) {
+                        passed = false;
+                        type = 3;
+                        info = obj.attr("errormsg") || Validform.util.getErrormsg.call(obj, curform, datatype, "recheck")
+                    }
+                }
+            } else {
+                info = info || obj.attr("errormsg") || Validform.util.getErrormsg.call(obj, curform, datatype);
+                if (Validform.util.isEmpty.call(obj, gets)) {
+                    info = obj.attr("nullmsg") || Validform.util.getNullmsg.call(obj, curform)
+                }
+            }
+            return {passed: passed, type: type, info: info}
+        }, regcheck: function (datatype, gets, obj) {
+            var curform = this, info = null, passed = false, type = 3;
+            if (obj.attr("ignore") === "ignore" && Validform.util.isEmpty.call(obj, gets)) {
+                if (obj.data("cked")) {
+                    info = ""
+                }
+                return {passed: true, type: 4, info: info}
+            }
+            obj.data("cked", "cked");
+            var dtype = Validform.util.parseDatatype(datatype);
+            var res;
+            for (var eithor = 0; eithor < dtype.length; eithor++) {
+                for (var dtp = 0; dtp < dtype[eithor].length; dtp++) {
+                    res = Validform.util._regcheck(dtype[eithor][dtp], gets, obj, curform);
+                    if (!res.passed) {
+                        break
+                    }
+                }
+                if (res.passed) {
+                    break
+                }
+            }
+            return res
+        }, parseDatatype: function (datatype) {
+            var reg = /\/.+?\/[mgi]*(?=(,|$|\||\s))|[\w\*-]+/g, dtype = datatype.match(reg), sepor = datatype.replace(reg, "").replace(/\s*/g, "").split(""), arr = [], m = 0;
+            arr[0] = [];
+            arr[0].push(dtype[0]);
+            for (var n = 0; n < sepor.length; n++) {
+                if (sepor[n] == "|") {
+                    m++;
+                    arr[m] = []
+                }
+                arr[m].push(dtype[n + 1])
+            }
+            return arr
+        }, showmsg: function (msg, type, o, triggered) {
+            if (msg == undef) {
+                return
+            }
+            if (triggered == "bycheck" && o.sweep && (o.obj && !o.obj.is(".Validform_error") || typeof type == "function")) {
+                return
+            }
+            $.extend(o, {curform: this});
+            if (typeof type == "function") {
+                type(msg, o, Validform.util.cssctl);
+                return
+            }
+            if (type == 1 || triggered == "byajax" && type != 4) {
+                msgobj.find(".Validform_info").html(msg)
+            }
+            if (type == 1 && triggered != "bycheck" && o.type != 2 || triggered == "byajax" && type != 4) {
+                msghidden = false;
+                msgobj.find(".iframe").css("height", msgobj.outerHeight());
+                msgobj.show();
+                setCenter(msgobj, 100)
+            }
+            if (type == 2 && o.obj) {
+                o.obj.parent().next().find(".Validform_checktip").html(msg);
+                Validform.util.cssctl(o.obj.parent().next().find(".Validform_checktip"), o.type)
+            }
+            if ((type == 3 || type == 4) && o.obj) {
+                o.obj.siblings(".Validform_checktip").html(msg);
+                Validform.util.cssctl(o.obj.siblings(".Validform_checktip"), o.type)
+            }
+        }, cssctl: function (obj, status) {
+            switch (status) {
+                case 1:
+                    obj.removeClass("Validform_right Validform_wrong").addClass("Validform_checktip Validform_loading");
+                    break;
+                case 2:
+                    obj.removeClass("Validform_wrong Validform_loading").addClass("Validform_checktip Validform_right");
+                    break;
+                case 4:
+                    obj.removeClass("Validform_right Validform_wrong Validform_loading").addClass("Validform_checktip");
+                    break;
+                default:
+                    obj.removeClass("Validform_right Validform_loading").addClass("Validform_checktip Validform_wrong")
+            }
+        }, check: function (curform, brothers, subpost, bool) {
+            var settings = brothers.settings;
+            var subpost = subpost || "";
+            var inputval = Validform.util.getValue.call(curform, $(this));
+            if (settings.ignoreHidden && $(this).is(":hidden") || $(this).data("dataIgnore") === "dataIgnore") {
+                return true
+            }
+            if (settings.dragonfly && !$(this).data("cked") && Validform.util.isEmpty.call($(this), inputval) && $(this).attr("ignore") != "ignore") {
+                return false
+            }
+            var flag = Validform.util.regcheck.call(curform, $(this).attr("datatype"), inputval, $(this));
+            if (inputval == this.validform_lastval && !$(this).attr("recheck") && subpost == "") {
+                return flag.passed ? true : false
+            }
+            this.validform_lastval = inputval;
+            var _this;
+            errorobj = _this = $(this);
+            if (!flag.passed) {
+                Validform.util.abort.call(_this[0]);
+                if (!bool) {
+                    Validform.util.showmsg.call(curform, flag.info, settings.tiptype, {
+                        obj: $(this),
+                        type: flag.type,
+                        sweep: settings.tipSweep
+                    }, "bycheck");
+                    !settings.tipSweep && _this.addClass("Validform_error")
+                }
+                return false
+            }
+            var ajaxurl = $(this).attr("ajaxurl");
+            if (ajaxurl && !Validform.util.isEmpty.call($(this), inputval) && !bool) {
+                var inputobj = $(this);
+                if (subpost == "postform") {
+                    inputobj[0].validform_subpost = "postform"
+                } else {
+                    inputobj[0].validform_subpost = ""
+                }
+                if (inputobj[0].validform_valid === "posting" && inputval == inputobj[0].validform_ckvalue) {
+                    return "ajax"
+                }
+                inputobj[0].validform_valid = "posting";
+                inputobj[0].validform_ckvalue = inputval;
+                Validform.util.showmsg.call(curform, brothers.tipmsg.c || tipmsg.c, settings.tiptype, {
+                    obj: inputobj,
+                    type: 1,
+                    sweep: settings.tipSweep
+                }, "bycheck");
+                Validform.util.abort.call(_this[0]);
+                var ajaxsetup = curform[0].validform_config || {};
+                ajaxsetup = ajaxsetup.ajaxurl || {};
+                var data = {};
+                data[$(this).attr("name")] = inputval;
+                var localconfig = {
+                    type: "POST", cache: false, url: ajaxurl, data: data, success: function (data) {
+                        if ($.trim(data.status) === "y") {
+                            inputobj[0].validform_valid = "true";
+                            data.info && inputobj.attr("sucmsg", data.info);
+                            Validform.util.showmsg.call(curform, inputobj.attr("sucmsg") || brothers.tipmsg.r || tipmsg.r, settings.tiptype, {
+                                obj: inputobj,
+                                type: 2,
+                                sweep: settings.tipSweep
+                            }, "bycheck");
+                            _this.removeClass("Validform_error");
+                            errorobj = null;
+                            if (inputobj[0].validform_subpost == "postform") {
+                                curform.trigger("submit")
+                            }
+                        } else {
+                            inputobj[0].validform_valid = data.info;
+                            Validform.util.showmsg.call(curform, data.info, settings.tiptype, {
+                                obj: inputobj,
+                                type: 3,
+                                sweep: settings.tipSweep
+                            });
+                            _this.addClass("Validform_error")
+                        }
+                        _this[0].validform_ajax = null
+                    }, error: function (data) {
+                        if (data.status == "200") {
+                            if (data.responseText == "y") {
+                                ajaxsetup.success({"status": "y"})
+                            } else {
+                                ajaxsetup.success({"status": "n", "info": data.responseText})
+                            }
+                            return false
+                        }
+                        if (data.statusText !== "abort") {
+                            var msg = "status: " + data.status + "; statusText: " + data.statusText;
+                            Validform.util.showmsg.call(curform, msg, settings.tiptype, {
+                                obj: inputobj,
+                                type: 3,
+                                sweep: settings.tipSweep
+                            });
+                            _this.addClass("Validform_error")
+                        }
+                        inputobj[0].validform_valid = data.statusText;
+                        _this[0].validform_ajax = null;
+                        return true
+                    }
+                };
+                if (ajaxsetup.success) {
+                    var temp_suc = ajaxsetup.success;
+                    ajaxsetup.success = function (data) {
+                        localconfig.success(data);
+                        temp_suc(data, inputobj)
+                    }
+                }
+                if (ajaxsetup.error) {
+                    var temp_err = ajaxsetup.error;
+                    ajaxsetup.error = function (data) {
+                        localconfig.error(data) && temp_err(data, inputobj)
+                    }
+                }
+                ajaxsetup = $.extend({}, localconfig, ajaxsetup, {dataType: "json"});
+                _this[0].validform_ajax = $.ajax(ajaxsetup);
+                return "ajax"
+            } else {
+                if (ajaxurl && Validform.util.isEmpty.call($(this), inputval)) {
+                    Validform.util.abort.call(_this[0]);
+                    _this[0].validform_valid = "true"
+                }
+            }
+            if (!bool) {
+                Validform.util.showmsg.call(curform, flag.info, settings.tiptype, {
+                    obj: $(this),
+                    type: flag.type,
+                    sweep: settings.tipSweep
+                }, "bycheck");
+                _this.removeClass("Validform_error")
+            }
+            errorobj = null;
+            return true
+        }, submitForm: function (settings, flg, url, ajaxPost, sync) {
+            var curform = this;
+            if (curform[0].validform_status === "posting") {
+                return false
+            }
+            if (settings.postonce && curform[0].validform_status === "posted") {
+                return false
+            }
+            var beforeCheck = settings.beforeCheck && settings.beforeCheck(curform);
+            if (beforeCheck === false) {
+                return false
+            }
+            var flag = true, inflag;
+            curform.find("[datatype]").each(function () {
+                if (flg) {
+                    return false
+                }
+                if (settings.ignoreHidden && $(this).is(":hidden") || $(this).data("dataIgnore") === "dataIgnore") {
+                    return true
+                }
+                var inputval = Validform.util.getValue.call(curform, $(this)), _this;
+                errorobj = _this = $(this);
+                inflag = Validform.util.regcheck.call(curform, $(this).attr("datatype"), inputval, $(this));
+                if (!inflag.passed) {
+                    Validform.util.showmsg.call(curform, inflag.info, settings.tiptype, {
+                        obj: $(this),
+                        type: inflag.type,
+                        sweep: settings.tipSweep
+                    });
+                    _this.addClass("Validform_error");
+                    if (!settings.showAllError) {
+                        _this.focus();
+                        flag = false;
+                        return false
+                    }
+                    flag && (flag = false);
+                    return true
+                }
+                if ($(this).attr("ajaxurl") && !Validform.util.isEmpty.call($(this), inputval)) {
+                    if (this.validform_valid !== "true") {
+                        var thisobj = $(this);
+                        Validform.util.showmsg.call(curform, curform.data("tipmsg").v || tipmsg.v, settings.tiptype, {
+                            obj: thisobj,
+                            type: 3,
+                            sweep: settings.tipSweep
+                        });
+                        _this.addClass("Validform_error");
+                        thisobj.trigger("blur", ["postform"]);
+                        if (!settings.showAllError) {
+                            flag = false;
+                            return false
+                        }
+                        flag && (flag = false);
+                        return true
+                    }
+                } else {
+                    if ($(this).attr("ajaxurl") && Validform.util.isEmpty.call($(this), inputval)) {
+                        Validform.util.abort.call(this);
+                        this.validform_valid = "true"
+                    }
+                }
+                Validform.util.showmsg.call(curform, inflag.info, settings.tiptype, {
+                    obj: $(this),
+                    type: inflag.type,
+                    sweep: settings.tipSweep
+                });
+                _this.removeClass("Validform_error");
+                errorobj = null
+            });
+            if (settings.showAllError) {
+            }
+            if (flag) {
+                var beforeSubmit = settings.beforeSubmit && settings.beforeSubmit(curform);
+                if (beforeSubmit === false) {
+                    return false
+                }
+                curform[0].validform_status = "posting";
+                var config = curform[0].validform_config || {};
+                if (settings.ajaxPost || ajaxPost === "ajaxPost") {
+                    var ajaxsetup = config.ajaxpost || {};
+                    ajaxsetup.url = url || ajaxsetup.url || config.url || curform.attr("action");
+                    ajaxsetup.success || ajaxsetup.error || Validform.util.showmsg.call(curform, curform.data("tipmsg").p || tipmsg.p, settings.tiptype, {
+                        obj: curform,
+                        type: 1,
+                        sweep: settings.tipSweep
+                    }, "byajax");
+                    if (sync) {
+                        ajaxsetup.async = false
+                    } else {
+                        if (sync === false) {
+                            ajaxsetup.async = true
+                        }
+                    }
+                    if (ajaxsetup.success) {
+                        var temp_suc = ajaxsetup.success;
+                        ajaxsetup.success = function (data) {
+                            settings.callback && settings.callback(data);
+                            curform[0].validform_ajax = null;
+                            if ($.trim(data.status) === "y") {
+                                curform[0].validform_status = "posted"
+                            } else {
+                                curform[0].validform_status = "normal"
+                            }
+                            temp_suc(data, curform)
+                        }
+                    }
+                    if (ajaxsetup.error) {
+                        var temp_err = ajaxsetup.error;
+                        ajaxsetup.error = function (data) {
+                            settings.callback && settings.callback(data);
+                            curform[0].validform_status = "normal";
+                            curform[0].validform_ajax = null;
+                            temp_err(data, curform)
+                        }
+                    }
+                    var localconfig = {
+                        type: "POST", async: true, data: curform.serializeArray(), success: function (data) {
+                            if ($.trim(data.status) === "y") {
+                                curform[0].validform_status = "posted";
+                                Validform.util.showmsg.call(curform, data.info, settings.tiptype, {
+                                    obj: curform,
+                                    type: 2,
+                                    sweep: settings.tipSweep
+                                }, "byajax")
+                            } else {
+                                curform[0].validform_status = "normal";
+                                Validform.util.showmsg.call(curform, data.info, settings.tiptype, {
+                                    obj: curform,
+                                    type: 3,
+                                    sweep: settings.tipSweep
+                                }, "byajax")
+                            }
+                            settings.callback && settings.callback(data);
+                            curform[0].validform_ajax = null
+                        }, error: function (data) {
+                            var msg = "status: " + data.status + "; statusText: " + data.statusText;
+                            Validform.util.showmsg.call(curform, msg, settings.tiptype, {
+                                obj: curform,
+                                type: 3,
+                                sweep: settings.tipSweep
+                            }, "byajax");
+                            settings.callback && settings.callback(data);
+                            curform[0].validform_status = "normal";
+                            curform[0].validform_ajax = null
+                        }
+                    };
+                    ajaxsetup = $.extend({}, localconfig, ajaxsetup, {dataType: "json"});
+                    curform[0].validform_ajax = $.ajax(ajaxsetup)
+                } else {
+                    if (!settings.postonce) {
+                        curform[0].validform_status = "normal"
+                    }
+                    var url = url || config.url;
+                    if (url) {
+                        curform.attr("action", url)
+                    }
+                    return settings.callback && settings.callback(curform)
+                }
+            }
+            return false
+        }, resetForm: function () {
+            var brothers = this;
+            brothers.each(function () {
+                this.reset();
+                this.validform_status = "normal"
+            });
+            brothers.find(".Validform_right").text("");
+            brothers.find(".passwordStrength").children().removeClass("bgStrength");
+            brothers.find(".Validform_checktip").removeClass("Validform_wrong Validform_right Validform_loading");
+            brothers.find(".Validform_error").removeClass("Validform_error");
+            brothers.find("[datatype]").removeData("cked").removeData("dataIgnore").each(function () {
+                this.validform_lastval = null
+            });
+            brothers.eq(0).find("input:first").focus()
+        }, abort: function () {
+            if (this.validform_ajax) {
+                this.validform_ajax.abort()
+            }
+        }
+    };
+    $.Datatype = Validform.util.dataType;
+    Validform.prototype = {
+        dataType: Validform.util.dataType, eq: function (n) {
+            var obj = this;
+            if (n >= obj.forms.length) {
+                return null
+            }
+            if (!(n in obj.objects)) {
+                obj.objects[n] = new Validform($(obj.forms[n]).get(), obj.settings, true)
+            }
+            return obj.objects[n]
+        }, resetStatus: function () {
+            var obj = this;
+            $(obj.forms).each(function () {
+                this.validform_status = "normal"
+            });
+            return this
+        }, setStatus: function (status) {
+            var obj = this;
+            $(obj.forms).each(function () {
+                this.validform_status = status || "posting"
+            });
+            return this
+        }, getStatus: function () {
+            var obj = this;
+            var status = $(obj.forms)[0].validform_status;
+            return status
+        }, ignore: function (selector) {
+            var obj = this;
+            var selector = selector || "[datatype]";
+            $(obj.forms).find(selector).each(function () {
+                $(this).data("dataIgnore", "dataIgnore").removeClass("Validform_error")
+            });
+            return this
+        }, unignore: function (selector) {
+            var obj = this;
+            var selector = selector || "[datatype]";
+            $(obj.forms).find(selector).each(function () {
+                $(this).removeData("dataIgnore")
+            });
+            return this
+        }, addRule: function (rule) {
+            var obj = this;
+            var rule = rule || [];
+            for (var index = 0; index < rule.length; index++) {
+                var o = $(obj.forms).find(rule[index].ele);
+                for (var attr in rule[index]) {
+                    attr !== "ele" && o.attr(attr, rule[index][attr])
+                }
+            }
+            $(obj.forms).each(function () {
+                var $this = $(this);
+                Validform.util.enhance.call($this, obj.settings.tiptype, obj.settings.usePlugin, obj.settings.tipSweep, "addRule")
+            });
+            return this
+        }, ajaxPost: function (flag, sync, url) {
+            var obj = this;
+            if (obj.settings.tiptype == 1 || obj.settings.tiptype == 2 || obj.settings.tiptype == 3) {
+                creatMsgbox()
+            }
+            Validform.util.submitForm.call($(obj.forms[0]), obj.settings, flag, url, "ajaxPost", sync);
+            return this
+        }, submitForm: function (flag, url) {
+            var obj = this;
+            var subflag = Validform.util.submitForm.call($(obj.forms[0]), obj.settings, flag, url);
+            subflag === undef && (subflag = true);
+            if (subflag === true) {
+                obj.forms[0].submit()
+            }
+            return this
+        }, resetForm: function () {
+            var obj = this;
+            Validform.util.resetForm.call($(obj.forms));
+            return this
+        }, abort: function () {
+            var obj = this;
+            $(obj.forms).each(function () {
+                Validform.util.abort.call(this)
+            });
+            return this
+        }, check: function (bool, selector) {
+            var selector = selector || "[datatype]", obj = this, curform = $(obj.forms), flag = true;
+            curform.find(selector).each(function () {
+                Validform.util.check.call(this, curform, obj, "", bool) || (flag = false)
+            });
+            return flag
+        }, config: function (setup) {
+            var obj = this;
+            setup = setup || {};
+            $(obj.forms).each(function () {
+                this.validform_config = $.extend(true, this.validform_config, setup)
+            });
+            return this
+        }
+    };
+    $.fn.Validform = function (settings) {
+        return new Validform(this, settings)
+    };
+    function setCenter(obj, time) {
+        var left = ($(window).width() - obj.outerWidth()) / 2, top = ($(window).height() - obj.outerHeight()) / 2, top = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + (top > 0 ? top : 0);
+        obj.css({left: left}).animate({top: top}, {duration: time, queue: false})
+    }
+
+    function creatMsgbox() {
+        if ($("#Validform_msg").length !== 0) {
+            return false
+        }
+        msgobj = $('<div id="Validform_msg"><div class="Validform_title">' + tipmsg.tit + '<a class="Validform_close" href="javascript:void(0);">&chi;</a></div><div class="Validform_info"></div><div class="iframe"><iframe frameborder="0" scrolling="no" height="100%" width="100%"></iframe></div></div>').appendTo("body");
+        msgobj.find("a.Validform_close").click(function () {
+            msgobj.hide();
+            msghidden = true;
+            if (errorobj) {
+                errorobj.focus().addClass("Validform_error")
+            }
+            return false
+        }).focus(function () {
+            this.blur()
+        });
+        $(window).bind("scroll resize", function () {
+            !msghidden && setCenter(msgobj, 400)
+        })
+    }
+
+    $.Showmsg = function (msg) {
+        creatMsgbox();
+        Validform.util.showmsg.call(win, msg, 1, {})
+    };
+    $.Hidemsg = function () {
+        msgobj.hide();
+        msghidden = true
+    }
+})(jQuery, window);
+// refresh
+window.refresh = function () {
+    $("img[data-src]").lazyload();
+    $("img.bookcover-img").lazyload(0, null, function () {
+        $(this).parent().find(".bookcover-name-layer").show()
+    })
+};
+// mixin
+eval(function (p, a, c, k, e, r) {
+    e = function (c) {
+        return (c < a ? '' : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
+    };
+    if (!''.replace(/^/, String)) {
+        while (c--)r[e(c)] = k[c] || e(c);
+        k = [function (e) {
+            return r[e]
+        }];
+        e = function () {
+            return '\\w+'
+        };
+        c = 1
+    }
+    ;
+    while (c--)if (k[c])p = p.replace(new RegExp('\\b' + e(c) + '\\b', 'g'), k[c]);
+    return p
+}('p S=$(\'#S\');p V=$(\'V\');p M=L.M||{};L.M={1l:A(a,b,c){p d={};d.q=X;d.r=\'\';p e=b;p f=c;n(e==1u||e==\'\'){d.q=t}1X(a){y\'K\':n(!d.q){d.r=\'请输入手机号！\';o}n(e.P<11){d.r=\'请输入正确的手机号码！\';d.q=t;o}p g=/^1[3|5|7|8][0-9]\\d{8}$/;n(!g.D(e)){d.r=\'请输入正确的手机号码！\';d.q=t;o}o;y\'1k\':n(!d.q){d.r=\'请输入验证码！\';o}p g=/^\\w{6}$/;n(!g.D(e)){d.r=\'请输入6位验证码！\';d.q=t;o}o;y\'Q\':d.r=\'昵称输入正确\';n(!d.q){d.r=\'\';d.q=X;o}p g=/^[\\1J-\\1W\\w]{2,10}$/;n(!g.D(e)){d.r=\'中文、英文、数字、下划线组成，长度2-10位\';d.q=t;o}o;y\'2q\':n(!d.q){d.r=\'请选择头像！\';o}o;y\'1m\':n(!d.q){d.r=\'请输入验证码！\';o}o;y\'1A\':e=e+\'\';d.r=\'\';n(!d.q){d.r=\'输入评论内容！\';o}n(e.P>1j){d.r=\'您输入的内容过长！\';d.q=t;o}o;y\'1Q\':d.r=\'\';n(!d.q){d.r=\'请输入账户名！\';o}p g=/^\\w{4,13}$/;n(!g.D(e)){d.r=\'请输入4-13位字符\';d.q=t;o}o;y\'W\':n(!d.q){d.r=\'请输入密码！\';o}p g=/^\\w{6,16}$/;n(!g.D(e)){d.r=\'密码不符合规范,需由(6-16)个英文或数字组成\';d.q=t;o}o;y\'1i\':n(!d.q){d.r=\'请输入密码！\';o}n(f.C(\'E\')!=\'1h\'&&f.C(\'E\')!=\'1L\'){p g=/^\\w{6,16}$/;n(!g.D(e)){d.r=\'密码不符合规范,需由(6-16)个英文或数字组成\';d.q=t;o}}o;y\'1M\':n(!d.q){d.r=\'请再次输入密码！\';o}p h=f.G(\'T[C-E="1i"]\').U();n(e!=h){d.r=\'两次输入密码不一致！\';d.q=t;o}o;y\'26\':n(!d.q){d.r=\'请输入邮箱！\';o}p g=/^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$/;n(!g.D(e)){d.r=\'请输入正确的邮箱！\';d.q=t;o}o;y\'2a\':e=e+\'\';n(!d.q){d.r=\'请输入留言内容！\';o}n(e.P>1j){d.r=\'您输入的内容过长！\';d.q=t;o}o;2f:o}2h.1g(a,f,d.r,!d.q);s d},1q:A(){},1g:A(a,b,c,d){p e=c;p f=b.C(\'E\');p v=b.G(\'T[C-E=\'+a+\']\');p g=v.1x(\'Z\');n(f==\'1h\'){g=b.G(\'Z.15\');n(d){g.H(c);g.C(\'15\',a)}u{p h=g.C(\'15\');n(h!=a){}u{g.H(\'\')}}}u n(f==\'1N\'){}u n((f==\'1d\')||(f==\'1R\')){n(d){g.B(\'<i><\\/i>\'+c);g.z().x(\'J-t\').x(\'N\')}u{g.B(\'\');g.z()}}u n(a==\'1k\'){n(d){g.B(\'<i><\\/i>\'+c);g.z().x(\'J-t\').x(\'N\')}u{g.B(\'\');g.z()}}u n(a==\'Q\'){n(v.U().P<=0){g.B(\'\').B(\'昵称一经填写，只可进行一次修改\');g.z().x(\'Q-Z\')}u{g.B(\'<i><\\/i>\'+c);n(d){g.z().x(\'J-t\').x(\'N\')}u{n(a==\'W\'){}g.z().x(\'J-1c\').x(\'1a-1f\')}}}u{g.B(\'<i><\\/i>\'+c);n(d){g.z().x(\'J-t\').x(\'N\')}u{n(a==\'W\'){}g.z().x(\'J-1c\').x(\'1a-1f\')}}}};S.1n(\'1o\',\'.1p-2u\',A(e){e.1r();p b=$(e.1s);n(b.1t(\'14\'))s;p c=b.1v(\'1w\');p d=c.G(\'T[C-E=K]\').U();p f=M.1l(\'K\',d,c);n(!f.q)s;b.x(\'14\');c.G(\'.17 1y\').H(d);c.G(\'.17\').z(\'1z\');p g=A(a){};p h=A(a){b.z(\'14\')};p i={};p j={};j.K=d;j.1B=X;i.1C=\'1d\';i.E=\'1D\';i.1E=j;i.1F=g;i.1G=h;1H.1I(i);p k=1K;b.H(k+\'\');p l=1b(A(){k--;n(k<0){Y(l);b.H(\'重新获取\')}u{b.H(k+\'\')}},1O)});$(\'V\');A 1P(a,b){Y(L.R);L.R=1b(A(){a.1e--;n(a.1e<0){Y(R);a.1S(a)}u{a.1T(a)}},a.1U)}A 1V(a,b){n(a==1&&b>=20||a==2&&b<=18){s"水瓶座"}n(a==1&&b>F){s"1Y?"}n(a==2&&b>=19||a==3&&b<=20){s"双鱼座"}n(a==2&&b>29){s"24 25?"}n(a==3&&b>=21||a==4&&b<=19){s"白羊座"}n(a==3&&b>F){s"27. 28."}n(a==4&&b>=20||a==5&&b<=20){s"金牛座"}n(a==4&&b>O){s"I\'m 2b 2c!"}n(a==5&&b>=21||a==6&&b<=21){s"双子座"}n(a==5&&b>F){s"2d ... 2e."}n(a==6&&b>=22||a==7&&b<=22){s"巨蟹座"}n(a==6&&b>O){s"2g."}n(a==7&&b>=23||a==8&&b<=22){s"狮子座"}n(a==7&&b>F){s"2i 2j?"}n(a==8&&b>=23||a==9&&b<=22){s"处女座"}n(a==8&&b>F){s"2k. 2l."}n(a==9&&b>=23||a==10&&b<=22){s"天秤座"}n(a==9&&b>O){s"2m 2n."}n(a==10&&b>=23||a==11&&b<=21){s"天蝎座"}n(a==10&&b>F){s"2o 2p!"}n(a==11&&b>=22||a==12&&b<=21){s"人马座"}n(a==11&&b>O){s"2r 2s"}n(a==12&&b>=22||a==1&&b<=19){s"摩羯座"}n(a==12&&b>F){s"2t 1Z!"}}', 62, 155, '|||||||||||||||||||||||if|break|var|status|msg|return|false|else|||addClass|case|removeClass|function|html|data|test|type|31|find|text||icon|phone|window|verCon|red|30|length|nickname|timer|container|input|val|body|oldpwd|true|clearInterval|span|||||disable|error||mention|||gh|setInterval|ok|getCode|time|green|tipFnc|login|password|120|random|local|securityCode|on|click|get|anyc|preventDefault|target|hasClass|null|parents|form|siblings|strong|hidden|content|isRegainFlag|url|GET|param|callback|errCallback|sendData|send|u0391|60|loginDialog|repassword|reply|1000|gTimer|username|setPhone|endFn|fn|sec|zodiac|uFFE5|switch|Huh|way|||||Say|what|email|OK|Whatever||leaveMessage|soooo|sorry|Umm|no|default|Sorry|this|Excuse|me|Yeah|Right|Try|Again|Forget|it|headimg|Invalid|day|No|vcode'.split('|'), 0, {}));
+// main
+;(function (window) {
+    if (!("tadu" in window) || ("T" in window)) {
+        var tadu = {};
+        window.T = window.tadu = tadu
+    }
+    var base = '';
+    $("#loginBanner").load(base + "/header/banner?key=1&t=" + new Date() * 1);
+    $('#login-user').hover(function () {
+        $('.click-box-, .read-box-', $(this)).removeClass('hidden');
+        $(this).children('s').addClass('active')
+    }, function () {
+        var that = $(this);
+        $('.click-box-, .read-box-', that).addClass('hidden');
+        that.children('s').removeClass('active')
+    });
+    $('#login-read').hover(function () {
+        $('.click-box-, .read-box-', $(this)).removeClass('hidden');
+        $(this).children('s').addClass('active')
+    }, function () {
+        var that = $(this);
+        $('.click-box-, .read-box-', that).addClass('hidden');
+        that.children('s').removeClass('active')
+    });
+    $('body').on('click', '#voteTotal', function () {
+    });
+    $('img[data-src]').lazyload();
+    $('img.bookcover-img').lazyload(0, null, function () {
+        $(this).parent().find('.bookcover-name-layer').show()
+    });
+    $('.booklist-star').mhover({target: "ul li", curClass: "all"});
+    var $selectBox = $('.select');
+    var $selectList = $selectBox.find('.sod_list_wrapper');
+    $('body').on('click', function () {
+        $selectBox.find('.sod_list_wrapper').hide()
+    });
+    $selectBox.find('.sod_label').on('click', function (e) {
+        e.stopPropagation();
+        if ($(this).hasClass('opened')) {
+            $(this).removeClass('opened');
+            $selectList.hide()
+        } else {
+            $(this).addClass('opened');
+            $selectList.show()
+        }
+    });
+    var container = $('#container');
+    container.on('mouseenter', '.index-girl-cover', function () {
+        var me = $(this);
+        var fa = me.parents('.index-girl-cover');
+        var oShadow = fa.find('.shadow');
+        var oLayer = fa.find('.shadow-layer');
+        oShadow.show();
+        oLayer.show()
+    }).on('mouseeleave', '.index-girl-cover', function () {
+        var me = $(this);
+        var fa = me.parents('.index-girl-cover');
+        var oShadow = fa.find('.shadow');
+        var oLayer = fa.find('.shadow-layer');
+        oShadow.hide();
+        oLayer.hide()
+    });
+    $.extend(tadu, {
+        index: function () {
+            $('.catalog-nav').accordion({minRow: 4, rowCol: 2, rowCount: 12});
+            $('.Jtimer').countdown({tmpl: '<span>%{d}</span>天<span>%{h}</span>小时<span>%{m}</span>分<span>%{s}</span>秒'});
+            $('.accordion .container-').carousel({
+                btnPrev: $('.btn-left-'),
+                btnNext: $('.btn-right-'),
+                btnGo: $('.step- span'),
+                auto: 3000,
+                afterEnd: function (obj, cur, len) {
+                    if (cur <= len) {
+                        $('.step- span').removeClass('current').eq(cur - 1).addClass('current')
+                    } else {
+                        $('.step- span').removeClass('current').eq(0).addClass('current')
+                    }
+                }
+            });
+            $(".tabBarUl li").hover(function () {
+                if (!$(this).hasClass('current-')) {
+                    $(this).addClass('currentGirl-')
+                }
+            }, function () {
+                $('.tabBarUl li').removeClass('currentGirl-')
+            })
+        }, slideShow: function () {
+            var $thumbsUl = $('.book-tab-cover-small');
+            $thumbsUl.find('li').eq(0).addClass('scurrent');
+            var $coverUl = $('.book-tab-cover');
+            $coverUl.find('li').eq(0).addClass('scurrent');
+            var $summaryUl = $('.book-tab-summary');
+            $summaryUl.find('li').eq(0).addClass('scurrent');
+            $thumbsUl.find('li').on('mouseenter', function () {
+                var index = $(this).index();
+                $(this).addClass('scurrent').siblings('li').removeClass('scurrent');
+                $coverUl.find('li').eq(index).addClass('scurrent').siblings('li').removeClass('scurrent');
+                $summaryUl.find('li').eq(index).addClass('scurrent').siblings('li').removeClass('scurrent');
+            });
+            $('.scrollbook').mhover({
+                target: ".book-tab-cover-small li",
+                content: ".book-roll- ul li",
+                curClass: "scurrent",
+                auto: 3000
+            });
+            $('.girl-book-tab').mhover({
+                target: ".book-tab-cover-small li",
+                content: ".book-tab-cover li",
+                content2: ".book-tab-summary li",
+                curClass: "scurrent",
+                auto: 3000
+            })
+        }, store: function () {
+            var $catalog = $(".catalog-nav");
+            $catalog.find('.arrow').on('click', function () {
+                $catalog.find('ul').addClass('hidden');
+                $catalog.find('.arrow').addClass('active-');
+                $(this).removeClass('active-');
+                $(this).next('ul').removeClass('hidden');
+            })
+        }, cover: function () {
+            $('.layer').hover(function () {
+                $('.layer .more-xz').removeClass('hidden')
+            }, function () {
+                $('.layer .more-xz').addClass('hidden')
+            });
+            $("#comment textarea").textlimit('#comment .red', 120, false);
+            $('.rely-code img').click(function () {
+                $(this).attr('src', '/random?t=' + new Date().getTime());
+                $('.rely-code input').val('').focus()
+            })
+        }, original: function () {
+        }, public: function () {
+            $(".tabBarUl li").hover(function () {
+                if (!$(this).hasClass('current-')) {
+                    $(this).addClass('literatureColor')
+                }
+            }, function () {
+                $('.tabbar li').removeClass('literatureColor')
+            });
+            $('.scrollbook').mhover({
+                target: ".book-list- ul li",
+                content: ".book-roll- ul li",
+                curClass: "current",
+                auto: 3000
+            });
+        }, categorys: function () {
+            $('.scrollbook').mhover({
+                target: ".book-tab-cover-small li",
+                content: ".book-roll- ul li",
+                curClass: "scurrent",
+                auto: 3000
+            })
+        }, rankHome: function () {
+        }, rankGirl: function () {
+            $(".tabbar li").on("click", function () {
+                var i = $(this).prevAll().length;
+                var $thumbsUl = $(this).parents(".Jtab").find(".Jtabpanel");
+                $(this).siblings().removeClass("arrow arrow-b girlCol-").find("s").removeClass("girl-trigon");
+                $(this).addClass("arrow arrow-b girlCol-").find("s").addClass("girl-trigon");
+                $thumbsUl.children().addClass("hidden");
+                $thumbsUl.children().eq(i).removeClass("hidden")
+            })
+        }, rankLiter: function () {
+            $(".tabbar li").on("click", function () {
+                var i = $(this).prevAll().length;
+                var $thumbsUl = $(this).parents(".Jtab").find(".Jtabpanel");
+                $(this).siblings().removeClass("arrow arrow-b literature-").find("s").removeClass("litera-trigon");
+                $(this).addClass("arrow arrow-b literature-").find("s").addClass("litera-trigon");
+                $thumbsUl.children().addClass("hidden");
+                $thumbsUl.children().eq(i).removeClass("hidden")
+            })
+        }
+    })
+})(self);
+function Tepdialog(obj) {
+    var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+    window.oldScrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+    disable_scroll(scrollTop);
+    var tpl = [];
+    tpl.push('<h1 class="tadou-s"><a href="/charge" target="_blank">立即充值 >></a>您的塔豆还剩余 <span>' + obj + '</span>  塔豆</h1>');
+    tpl.push('<div class="rank-tadou rewordBook">');
+    tpl.push('<a href="javascript:void(0);" class="blues">88塔豆</a>');
+    tpl.push('<a href="javascript:void(0);" >588塔豆</a>');
+    tpl.push('<a href="javascript:void(0);" >1888塔豆</a>');
+    tpl.push('<a href="javascript:void(0);" >5888塔豆</a>');
+    tpl.push('<a href="javascript:void(0);" >18888塔豆</a>');
+    tpl.push('<a href="javascript:void(0);" >188888塔豆</a>');
+    tpl.push('</div>');
+    tpl.push(' <div class="give-word">');
+    tpl.push('<textarea>写得真好，塔豆奉上！</textarea>');
+    tpl.push(' </div>');
+    tpl.push('<span class="textRed red"></span>');
+    var t = tpl.join('');
+    tpl.length = 0;
+    return t
+};function TepLoging() {
+    var tpl = [];
+    var staticUrl = $('#staticUrl').val();
+    var findPwd = '/findpwd/byemail';
+    var regNew = '/reg';
+    var help = '/help/reader';
+    var stu = $('#staticUrl').val();
+    if ($('#win-loginalert').length) {
+        return ''
+    }
+    var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+    disable_scroll(scrollTop);
+    var wH = $(window).height();
+    var ttt = 2 * wH / 5 + scrollTop;
+    tpl.push('<div id="overlay" style="top:' + scrollTop + 'px;"></div>');
+    tpl.push('<div id="win-loginalert" class="dialog login-alert" style="top: ' + ttt + 'px;">');
+    tpl.push('<a href="javascript:void(0);" class="close"></a>');
+    tpl.push('<h3 class="title">塔读账号登录<img src="/public/img/login-mk.png"/></h3>');
+    tpl.push('<form action="#" class="vern" data-type="loginDialog" type="POST"><div class="login-content" >');
+    tpl.push('<p class="p-red-tips"></p>');
+    tpl.push(' <p>账号</p>');
+    tpl.push('<p class="p-input"><input type="text" class="vern" data-type="username" placeholder="请用账号、手机号登录" /><span class="" style="padding-left: 4px;"><i></i></span></p>');
+    tpl.push('<p>密码</p><p class="p-input"><input type="password" class="vern" data-type="password" placeholder="请输入密码" /><span class="" style="padding-left: 4px;"><i></i></span></p> ');
+    tpl.push('<p>验证码</p><p> <div style="position: relative;top: 0px;">');
+    tpl.push('<input class="input-txt input-ss vern" type="text" data-type="securityCode" placeholder=""/>');
+    tpl.push('<img src="/genSecurityCode" class="get-code" alt="" style="position: relative; top: 11px; left: 5px;"/>');
+    tpl.push('<a style="padding-left: 0px;margin-left: 10px;" href="javascript:void(0);" class="blue-s change change-img get-code">换一个</a>');
+    tpl.push('<span class="error" style="padding-left: 12px;"></span>');
+    tpl.push('</div> </p> ');
+    tpl.push('</div>');
+    tpl.push(' <div class="buttons" style="">');
+    tpl.push('<button type="submit" class="btn-blue-m2" style="margin-left: -35px;">登  录</button>   </div>');
+    tpl.push(' <p class="about-help" style=""><a href="' + findPwd + '">忘记密码?</a><span>|</span><a href="' + regNew + '">新用户注册</a><span>|</span><a href="' + help + '">帮助中心</a></p>');
+    tpl.push('</div></form>');
+    var t = tpl.join('');
+    tpl.length = 0;
+    return t
+};function tepbookvote(ele, id) {
+    var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+    var wH = $(window).height();
+    var ttt = 2 * wH / 5 + scrollTop;
+    disable_scroll(scrollTop);
+    var tpl = [];
+    var list = parseInt(ele.leftVoteCount);
+    tpl.push('<div id="overlay" style="top:' + scrollTop + 'px;"></div>');
+    tpl.push('<div id="win-bookvote" class="dialog" style="top: ' + ttt + 'px;">');
+    tpl.push('<a href="javascript:void(0);" class="close"></a>');
+    tpl.push('<h3 class="title">投推荐票</h3>');
+    tpl.push('<div class="bookplay">');
+    tpl.push('<h5 class="vote-tuijian"><a href="/book/' + id + '/" class="_vote-bookN">《' + ele.bookName + '》</a>写得太好了！我决定<span>投推荐票</span>支持一下！  </h5>');
+    tpl.push('<h1 class="tadou-s"><a href="/help/reader#recomand" target="_blank" id="voteTotal">获得更多推荐票 >></a>您今日剩余推荐票 <span>' + ele.leftVoteCount + '</span>  张</h1>');
+    tpl.push('<div class="rank-tadou vote-recomand">');
+    for (var i = 1; i <= list; i++) {
+        if (i == 1) {
+            tpl.push('<a href="javascript:void(0);" data-votecount="' + i + '" class="vote-num">' + i + '张推荐票</a>')
+        } else if (i < 8) {
+            tpl.push('<a href="javascript:void(0);" data-votecount="' + i + '" class="voteList">' + i + '张推荐票</a>')
+        }
+    }
+    for (var j = i; j <= 7; j++) {
+        tpl.push('<a href="javascript:void(0);" class="vote-white">' + j + '张推荐票</a>')
+    }
+    if (list) {
+        tpl.push('<a href="javascript:void(0);" class="votoAll voteList" data-votecount="' + ele.leftVoteCount + '" >所有推荐票</a>')
+    } else {
+        tpl.push('<a href="javascript:void(0);" class="vote-white">所有推荐票</a>')
+    }
+    tpl.push('</div></div>');
+    tpl.push('<div class="buttons b-play">');
+    tpl.push('<a href="javascript:void(0);" class="vote-btn" data-leftCount="' + ele.leftVoteCount + '">确定</a>');
+    tpl.push('</div></div>');
+    var t = tpl.join('');
+    tpl.length = 0;
+    return t
+}
+function delDailog() {
+    $('body').find('.dialog').remove();
+    $('body').find('#overlay').remove();
+    enable_scroll()
+}
+function rewardOk() {
+    $('body').find('.dialog').remove();
+    $.dialog({
+        id: 'win-bookplaysucess',
+        wrapClass: 'size520 sucssAlert',
+        title: '书籍打赏',
+        bodyClass: 'message',
+        bodyHtml: '<h4 class="tips-rigth pt-dashang-color">打赏成功</h4> <p>感谢您对作者的支持</p>',
+        butClass: 'buttons',
+        btnHtml: '<a href="javascript:void(0);" class="blue-btn succ-reward fans-ok" >确定</a>'
+    })
+}
+$('.succ-reward').on('click', function () {
+    var me = $(this);
+    window.location.reload()
+});
+function rewardNo() {
+    $('body').find('.dialog').remove();
+    $.dialog({
+        id: 'win-bookplayfail',
+        wrapClass: 'size520',
+        title: '书籍打赏',
+        bodyClass: 'message',
+        bodyHtml: '<h4 class="tips-wrong pt-dashangfail-color">非常抱歉 !</h4> <p>您的塔豆不足，无法进行本次打赏。</p> <p>请充值后继续打赏本书。感谢您的支持！</p>',
+        butClass: 'buttons',
+        btnHtml: ' <a href="javascript:void(0);" class="blue-btn" target="_blank">立即充值</a> <a href="javascript:winClose();" class="grey-btn  fans-ok">取消返回</a>'
+    })
+}
+function collectBookOk() {
+    $.dialog({
+        id: 'win-getbook',
+        wrapClass: 'size520',
+        title: '提示',
+        bodyClass: 'message book-shoucang pt-height-small',
+        bodyHtml: '<h4 class="tips-rigth">加入收藏成功，欢迎加入塔读文学!</h4>',
+        btnHtml: ''
+    })
+}
+function collectBookFalse() {
+    $.dialog({
+        id: 'win-failgetbook',
+        wrapClass: 'size520',
+        title: '提示',
+        bodyClass: 'message book-shoucang pt-height-small',
+        bodyHtml: '<h4 class="tips-wrong">该书已收藏</h4>',
+        btnHtml: ''
+    })
+}
+function chargeTado() {
+    $.dialog({
+        id: 'win-notadou',
+        wrapClass: 'size520',
+        title: '提示',
+        bodyClass: 'message pt-margin-80',
+        bodyHtml: '<h4 class="tips-wrong">您的余额不足，请先充值!</h4>',
+        butClass: 'buttons',
+        btnHtml: '  <a href="javascript:void(0);" class="blue-btn" target="_blank">立即充值</a> <a href="javascript:winClose();" class="grey-btn">取消返回</a>'
+    })
+}
+function chargeBookSus(tadou) {
+    $.dialog({
+        id: 'win-orderok',
+        wrapClass: 'size520',
+        title: '单章订阅',
+        bodyClass: 'message',
+        bodyHtml: '<h4 class="tips-rigth">全本订阅成功!</h4><p class="color-tadou">当前塔豆余额: <span>' + tadou + '</span> 塔豆</p>',
+        butClass: 'buttons',
+        btnHtml: '<a href="javascript:void(0);" class="blue-btn closeDai" target="_blank">确定</a>'
+    })
+}
+function chargeBookFail() {
+    $.dialog({
+        id: 'win-notadou',
+        wrapClass: 'size520',
+        title: '单章订阅',
+        bodyClass: 'message pt-margin-80',
+        bodyHtml: '<h4 class="tips-wrong">您的余额不足，请先充值!</h4>',
+        butClass: 'buttons',
+        btnHtml: '<a href="/charge" class="blue-btn" target="_blank">立即充值</a> <a href="javascript: void(0);" class="grey-btn closeDai" >取消返回</a>'
+    })
+}
+$(function () {
+    $('#tdshare').click(function () {
+        $('#bdshare img').click()
+    })
+});
+function dailogPosition() {
+    var w = parseInt($('body').find('.dialog').width() / 2);
+    $('body').find('.dialog').css({'margin-left': '-' + w})
+};$('body').on('click', '.close', function () {
+    delDailog()
+});
+$('body').on('click', '.sucssAlert>a', function () {
+    window.location.reload()
+});
+function dialogOkRe(str) {
+    $.dialog({
+        id: 'win-getbook',
+        wrapClass: 'size520 sucssAlert',
+        title: '提示',
+        bodyClass: 'message book-shoucang pt-height-small',
+        bodyHtml: '<h4 class="tips-rigth">' + str + '</h4>',
+        btnHtml: ''
+    })
+}
+function checkedOut() {
+    $("input[name='check']:checked").each(function () {
+        var o = $(this);
+        o.prop('checked', false)
+    })
+}
+// ajax
+window.async = {};
+var sendData = window.sendData || {};
+window.sendData = {
+    url: {
+        search: "/search",
+        comment: "/api/v1/comment",
+        likebook: "/tadu/api/v1/delHistorys",
+        delBookmarks: "/tadu/api/v1/delBookmarks",
+        readmark: "/tadu/api/v1/read/mark",
+        readcollect: "/api/v1/read/collect",
+        changsysflag: "/tadu/api/v1/changsysflag",
+        deldata: "/tadu/api/v1/delsysmsg",
+        addblack: "/tadu/api/v1/addblack",
+        blackcanc: "/tadu/api/v1/blackcanc",
+        reblacklist: "/tadu/api/v1/remove-blacklist",
+        talkfriend: "/tadu/api/v1/talkfriend",
+        talkcommit: "/tadu/api/v1/talkcommit",
+        addbookok: "/tadu/api/v1/addFavorites",
+        addbooksh: "/api/v1/addbooksh",
+        mybookdel: "/tadu/api/v1/delFavorites",
+        mybookmoredel: "/api/v1/mybookmoredel",
+        cancaledit: "/api/v1/cancaledit",
+        delfridata: "/tadu/api/v1/delfrimsg",
+        delmydata: "/tadu/api/v1/delmymsg",
+        changfriflag: "/tadu/api/v1/changfriflag",
+        asyncusername: "/api/v1/check/username",
+        asyncnickname: "/api/v1/check/nickname",
+        asyncemail: "/api/v1/check/email",
+        asyncvcode: "/api/v1/check/securityCode",
+        login: "/api/v1/login",
+        loginDialog: "/api/v1/login",
+        register: "/api/v1/register",
+        getVcodeimg: "/genSecurityCode",
+        securityCode: "/api/v1/check/securityCode",
+        thirdreg: "/api/v1/thirdbind/reg",
+        trlogin: "/api/v1/thirdbind/login",
+        findbyemail: "/api/v1/findpwd/submitemail",
+        findbyphone: "/api/v1/findpwd/submitphone",
+        sendcode: "/api/v1/findpwd/submitcode",
+        resetpwd: "/api/v1/reset/submitpassword",
+        comment: "/tadu/api/v1/sendComment",
+        reply: "/tadu/api/v1/sendReply",
+        setEmail: "/tadu/api/v1/sendemail",
+        getCode: "/tadu/api/v1/bindphone/getsecuritycode",
+        setPhone: "/tadu/api/v1/bindphone/fillsecuritycode",
+        headimg: "/tadu/api/v1/updateavatar",
+        setInfo: "/tadu/api/v1/updateuserinfo",
+        setPrivate: "/tadu/api/v1/bind/private",
+        setPwd: "/tadu/api/v1/updatepwd",
+        subscribe: "/tadu/api/v1/subscribe",
+        leaveMessage: "/tadu/api/v1/talkcommit"
+    }, send: function (data) {
+        var _d = data;
+        var _p = _d.param || {};
+        _p.r = Math.random();
+        var _t = _d.type || "POST";
+        if (_d.url == "findbyemail") {
+            _t = "GET"
+        }
+        var url;
+        _d.beforeSend = _d.beforeSend || undefined;
+        _d.callback = _d.callback || undefined;
+        _d.errCallback = _d.errCallback || undefined;
+        _d.flCallback = _d.flCallback || undefined;
+        _d.allCallback = _d.allCallback || undefined;
+        this.beforeSend = _d.beforeSend;
+        this.callback = _d.callback;
+        this.errCallback = _d.errCallback;
+        this.flCallback = _d.flCallback;
+        this.allCallbac = _d.allCallback;
+        if (_d.url == "search") {
+            url = encodeURI(encodeURI(this.url[_d.url] + "?query=" + _p.query + "&pageSize=" + _p.pageSize));
+            _p = {};
+            $.get(url, function (data) {
+            });
+            return
+        } else {
+            url = this.url[_d.url]
+        }
+        if (window.sendData.beforeSend) {
+            window.sendData.beforeSend()
+        }
+        $.ajax({url: url, type: _t, dataType: "json", data: _p}).done(function (response) {
+            var code = response.status || 0;
+            if (code == "200") {
+                var data = response.data || {};
+                if (window.sendData.callback) {
+                    window.sendData.callback(response)
+                }
+            } else {
+                switch (code) {
+                    case 0:
+                        break;
+                    case 501:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        break;
+                    case 502:
+                        response.tp = "securityCode";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 503:
+                        response.tp = "login";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 504:
+                        response.tp = "username";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 505:
+                        response.tp = "username";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 506:
+                        response.tp = "random";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 507:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "securityCode";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 600:
+                        response.tp = "nickname";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 601:
+                        response.tp = "nickname";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 602:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "nickname";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 700:
+                        response.tp = "password";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 701:
+                        response.tp = "repassword";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 702:
+                        response.tp = "repassword";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 703:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "repassword";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 704:
+                        response.tp = "oldpwd";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 705:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "password";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 800:
+                        response.tp = "email";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 801:
+                        response.tp = "email";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 804:
+                        response.tp = "email";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 806:
+                        response.tp = "email";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 807:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 808:
+                        response.tp = "random";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 810:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 811:
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 812:
+                        response.tp = "random";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 814:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 815:
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 818:
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 819:
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 900:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        $.alert("请阅读“塔读用户协议”！");
+                        break;
+                    case 901:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        $("body").append(TepLoging());
+                        break;
+                    case 904:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "phone";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 956:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "sendComment";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 957:
+                        response.tp = "sendComment";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 960:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "sendComment";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 999:
+                        response.tp = "leaveMessage";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 1001:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "subscribe";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 1002:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        response.tp = "subscribe";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 1003:
+                        chargeBookFail();
+                        response.tp = "subscribe";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    case 1007:
+                        response.tp = "leaveMessage";
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break;
+                    default:
+                        if (response.msg) {
+                            $.alert(response.msg)
+                        }
+                        if (window.sendData.errCallback) {
+                            window.sendData.errCallback(response)
+                        }
+                        break
+                }
+            }
+        }).fail(function (err) {
+            if (window.sendData.flCallback) {
+                window.sendData.flCallback(err)
+            }
+        }).always(function (response) {
+            if (window.sendData.allCallback) {
+                window.sendData.allCallback(response)
+            }
+        })
+    }
+};
+
+// space_set
+;var aForm = container.find('form');
+var setInfoForm = container.find('form[data-type=setInfo]');
+if (setInfoForm.size() > 0) {
+    var yearSlct = setInfoForm.find('.select.year select');
+    var yearVal = parseInt(yearSlct.attr('val') || '0');
+    var monthSlct = setInfoForm.find('.select.month select');
+    var monthVal = parseInt(monthSlct.attr('val') || '0');
+    var daySlct = setInfoForm.find('.select.day select');
+    var dayVal = parseInt(daySlct.attr('val') || '0');
+    var yearHtml = '';
+    var monthHtml = '';
+    var dayHtml = '';
+    var date = new Date();
+    var thisYear = date.getFullYear();
+    for (var i = 1950; i <= thisYear; i++) {
+        var s = (i == yearVal) ? 'selected="selected"' : '';
+        yearHtml += '<option value="' + i + '"' + s + '>' + i + '年</option>'
+    }
+    yearSlct.html('').html(yearHtml);
+    for (var i = 1; i < 13; i++) {
+        var s = (i == monthVal) ? 'selected="selected"' : '';
+        monthHtml += '<option value="' + i + '"' + s + '>' + i + '月</option>'
+    }
+    monthSlct.html('').html(monthHtml);
+    function setDay() {
+        var ye = yearSlct.val();
+        var mo = monthSlct.val();
+        var r = 30;
+        if (mo == 1 || mo == 3 || mo == 5 || mo == 7 || mo == 8 || mo == 10 || mo == 12) {
+            r = 31
+        }
+        if (mo == 2) {
+            if (((ye % 4) == 0) && ((ye % 100) != 0) || ((ye % 400) == 0)) {
+                r = 29
+            } else {
+                r = 28
+            }
+        }
+        dayHtml = '';
+        for (var i = 1; i <= r; i++) {
+            var s = (i == dayVal) ? 'selected="selected"' : '';
+            dayHtml += '<option value="' + i + '"' + s + '>' + i + '日</option>'
+        }
+        daySlct.html('').html(dayHtml);
+        var zo = zodiac(mo, daySlct.val());
+        setInfoForm.find('.zodiac').text(zo)
+    }
+
+    setDay();
+    setInfoForm.on('change', '.select.year select, .select.month select', function () {
+        setDay()
+    })
+}
+$('body').on('click', 'input[name=head]', function (e) {
+    var me = $(e.target);
+    var fa = me.parents('form');
+    fa.find('label.checked').removeClass('checked');
+    me.siblings('label').addClass('checked')
+}).on('click', '.code-img', function () {
+    var me = $(this);
+    me.attr('src', '/genSecurityCode?' + Math.random() + '')
+}).on('input', '.reply-content', function () {
+    var me = $(this);
+    var vl = me.val();
+    var l = vl.length;
+    console.log('input');
+    if (l > 120) {
+        var word = l - 120;
+        var text = '已超出' + word + '个字符';
+        me.siblings('span').text(text);
+        me.siblings('.btn-blue-m2').addClass('disable')
+    } else {
+        var word = 120 - l;
+        var text = '您还可以输入' + word + '个字符';
+        me.siblings('span').text(text);
+        me.siblings('.btn-blue-m2').removeClass('disable')
+    }
+}).on('click', 'form[data-type=headimg] li label', function (e) {
+    var me = $(this);
+    if (me.hasClass('checked')) {
+        return
+    }
+    ;
+    var fa = me.parents('form');
+    fa.find('label.checked').removeClass('checked');
+    me.addClass('checked');
+    me.siblings('input').prop('checked', true)
+}).on('click', '.sendcode', function () {
+    var me = $(this);
+    var fa = me.parents('form');
+    if (window.async[tp] && window.async[tp].sending) {
+        return
+    }
+    ;
+    if (me.hasClass('disable')) {
+        return
+    } else {
+        me.addClass('sending')
+    }
+    ;
+    if (fa.hasClass('sending')) {
+        return
+    } else {
+        fa.addClass('sending')
+    }
+    ;
+    var tp = 'findbyphone';
+    var ph = fa.find('input[data-type=phone]');
+    var vc = verCon.local('phone', ph.val(), ph);
+    if (!vc.status) {
+    } else {
+        var beforeSend = function () {
+            window.async[tp] = {};
+            window.async[tp].sending = true;
+            var data = {};
+            data.time = 60;
+            data.sec = 1000;
+            data.el = me;
+            data.fn = function (data) {
+                data.el.text(data.time + '秒');
+                data.el.addClass('disable')
+            };
+            data.endFn = function (data) {
+                data.el.text('重新获取');
+                data.el.removeClass('disable');
+                fa.removeClass('sending')
+            };
+            gTimer(data)
+        };
+        var callback = function (response) {
+            window.async[tp].sending = false;
+            me.removeClass('sending');
+            fa.removeClass('sending')
+        };
+        var errCallback = function (response) {
+            window.async[tp].sending = false
+        };
+        var param = {};
+        param.phone = ph.val();
+        var data = {};
+        data.url = tp;
+        data.type = 'POST';
+        data.param = param;
+        data.callback = callback;
+        data.beforeSend = beforeSend;
+        data.errCallback = errCallback;
+        sendData.send(data)
+    }
+}).on('click', 'form .get-code', function (e) {
+    var me = $(e.target);
+    if (me.prop('tagName') == 'IMG')me.attr('src', '/genSecurityCode?' + Math.random() + ''); else me.siblings('img').attr('src', '/genSecurityCode?' + Math.random() + '')
+}).on('blur', 'form input.vern', function () {
+    var me = $(this);
+    var tp = me.data('type') || '';
+    if (!tp) {
+        return
+    }
+    ;
+    var val = me.val();
+    var frm = me.parents('form');
+    var ver = {};
+    ver.status = false;
+    if ((!me.hasClass('notn')) || (!me.hasClass('async')) || ((val.length > 0) && me.hasClass('notn'))) {
+        ver = verCon.local(tp, val, frm)
+    }
+    if (me.hasClass('async') && ver.status && (val.length > 0)) {
+        verCon.tipFnc(tp, frm, '正在进行校验', 1);
+        window.async[tp] = window.async[tp] || {sending: false, isErr: false};
+        if (window.async[tp] && window.async[tp].sending == true) {
+            return
+        }
+        ;
+        var beforeSend = function () {
+            window.async[tp].sending = true
+        };
+        var callback = function (response) {
+            var msg = response.msg || '';
+            window.async[tp].sending = false;
+            verCon.tipFnc(tp, frm, msg, false);
+            window.async[tp].isErr = false
+        };
+        var errCallback = function (response) {
+            window.async[tp].sending = false;
+            var msg = response.msg || '';
+            verCon.tipFnc(tp, frm, msg, true);
+            window.async[tp].isErr = true
+        };
+        var param = {};
+        param[tp] = val;
+        var data = {};
+        data.url = 'async' + tp;
+        data.type = 'POST';
+        data.param = param;
+        data.callback = callback;
+        data.beforeSend = beforeSend;
+        data.errCallback = errCallback;
+        sendData.send(data)
+    }
+}).on('submit', 'form.vern', function (e) {
+    var me = $(this);
+    var err = false;
+    e.preventDefault();
+    if (me.hasClass('sending')) {
+        return
+    } else {
+    }
+    ;
+    var submitBtn = me.find('button[type="submit"]');
+    if (submitBtn.hasClass('disable')) {
+        console.log('disable');
+        return false
+    }
+    ;
+    var type = me.data('type') || '';
+    var param = {};
+    var data = {};
+    switch (type) {
+        case'headimg':
+            param.avatar = me.find('label.checked img').attr('src');
+            var beforeSend = function () {
+                me.addClass('sending')
+            };
+            var callback = function (response) {
+                if (response.msg)$.alert(response.msg);
+                me.removeClass('sending')
+            };
+            var errCallback = function (response) {
+                me.removeClass('sending')
+            };
+            data.url = me.data('type');
+            data.type = 'POST';
+            data.param = param;
+            data.beforeSend = beforeSend;
+            data.callback = callback;
+            data.errCallback = errCallback;
+            sendData.send(data);
+            break;
+        case'subscribe':
+            var beforeSend = function () {
+                me.addClass('sending')
+            };
+            param.bookId = me.data('bookid');
+            param.partId = me.data('cha');
+            var as = me.find('input[type=checkbox]').prop('checked');
+            if (as == true) {
+                param.autoSubscribe = as
+            }
+            ;
+            var callback = function (response) {
+                me.removeClass('sending');
+                window.location.href = response.redirectUrl
+            };
+            var errCallback = function (response) {
+                me.removeClass('sending')
+            };
+            data.url = me.data('type');
+            data.type = 'POST';
+            data.param = param;
+            data.beforeSend = beforeSend;
+            data.callback = callback;
+            data.errCallback = errCallback;
+            sendData.send(data);
+            break;
+        case'leaveMessage':
+            var beforeSend = function () {
+                me.addClass('sending')
+            };
+            param.content = me.find('textarea').val() + '';
+            param.receiverId = me.find('input').val();
+            var noLogin = me.data('nologin');
+            if (noLogin == true) {
+                $('body').append(TepLoging());
+                return
+            } else {
+                if (!param.content) {
+                    var iBox = me.find('span');
+                    iBox.text('请输入留言！');
+                    iBox.removeClass().addClass('icon-false').addClass('red');
+                    return
+                } else if (param.content.length > 120) {
+                    var iBox = me.find('span');
+                    iBox.text('您输入的内容过长！');
+                    iBox.removeClass().addClass('icon-false').addClass('red');
+                    return
+                }
+                if (!param.receiverId) {
+                    return
+                }
+            }
+            ;
+            var callback = function (response) {
+                me.find('textarea').val('');
+                me.find('span').removeClass();
+                if (response.msg)$.alert(response.msg);
+                var iBox = me.find('span');
+                iBox.text('');
+                iBox.removeClass();
+                me.removeClass('sending')
+            };
+            var errCallback = function (response) {
+                var iBox = me.find('span');
+                iBox.text(response.msg);
+                iBox.removeClass().addClass('icon-false').addClass('red');
+                me.removeClass('sending')
+            };
+            data.url = me.data('type');
+            data.type = 'POST';
+            data.param = param;
+            data.callback = callback;
+            data.errCallback = errCallback;
+            sendData.send(data);
+            break;
+        case'search':
+            var beforeSend = function () {
+                me.addClass('sending')
+            };
+            param.query = me.find('input').val();
+            param.pageSize = $('#search-select').val();
+            if (!param.query)return;
+            var callback = function (response) {
+                me.removeClass('sending')
+            };
+            var errCallback = function (response) {
+                me.removeClass('sending')
+            };
+            data.url = me.data('type');
+            data.type = 'GET';
+            data.param = param;
+            data.beforeSend = beforeSend;
+            data.callback = callback;
+            data.errCallback = errCallback;
+            sendData.send(data);
+            break;
+        case'setInfo':
+            var beforeSend = function () {
+                me.addClass('sending')
+            };
+            param.nickname = me.find('#nickname').val() || '';
+            param.gender = me.find('.gender input:checked').val();
+            param.birthday = me.find('.select.year select').val() + '-' + me.find('.select.month select').val() + '-' + me.find('.select.day select').val();
+            param.city = me.find('#city').val() || '';
+            param.isPrivate = me.find('.privacy input:checked').val();
+            var callback = function (response) {
+                var ref = function () {
+                    window.location.reload()
+                };
+                if (response.msg)$.alert(response.msg, ref);
+                me.removeClass('sending')
+            };
+            var errCallback = function (response) {
+                verCon.tipFnc(response.tp, me, response.msg, true);
+                me.removeClass('sending')
+            };
+            data.url = type;
+            data.type = 'POST';
+            data.param = param;
+            data.beforeSend = beforeSend;
+            data.callback = callback;
+            data.errCallback = errCallback;
+            sendData.send(data);
+            break;
+        default:
+            param.r = Math.random();
+            var aVern = me.find('.vern');
+            var lVern = aVern.size();
+            for (var i = 0; i < lVern; i++) {
+                var obj = aVern.eq(i);
+                var tp = obj.data('type') || '';
+                var val = obj.val();
+                if (!tp)continue;
+                if (obj.hasClass('notn'))continue;
+                if (obj.hasClass('async')) {
+                    if (window.async[tp] && window.async[tp].sending == true) {
+                        err = true;
+                        break
+                    } else {
+                        if (window.async[tp] && window.async[tp].isErr == true) {
+                            err = true;
+                            break
+                        }
+                    }
+                }
+                ;
+                if (tp == 'commentId') {
+                    val = obj.data('value')
+                }
+                ;
+                var vrn = verCon.local(tp, val, me);
+                if (!vrn.status) {
+                    err = true;
+                    break
+                }
+                ;
+                param[tp] = val
+            }
+            ;
+            for (var i = 0; i < me.find('.hidden').size(); i++) {
+                var o = me.find('.hidden').eq(i);
+                var v = o.val();
+                var t = o.data('type');
+                param[t] = v
+            }
+            ;
+            for (var i = 0; i < me.find('.notn').size(); i++) {
+                var o = me.find('.notn').eq(i);
+                var v = o.val();
+                var t = o.data('type');
+                param[t] = v
+            }
+            ;
+            var isAgreeTerm = me.find('.isAgreeTerm').size() > 0;
+            if (isAgreeTerm && !me.find('.isAgreeTerm').prop('checked')) {
+                var iBox = me.find('.isAgreeTerm').siblings('span');
+                iBox.removeClass().addClass('icon-false').addClass('red');
+                iBox.html('').html('<i><\/i>请阅读“塔读用户协议”！');
+                return
+            } else {
+                var iBox = me.find('.isAgreeTerm').siblings('span');
+                iBox.removeClass();
+                iBox.html('').html('<i><\/i>')
+            }
+            ;
+            if (isAgreeTerm) {
+                param.isAgreeTerm = 'yes'
+            }
+            ;
+            if (me.find('.autoLogin').size() > 0 && me.find('.autoLogin').prop('checked')) {
+                param.autoLogin = 'yes'
+            }
+            ;
+            if (type == 'reply' || type == 'comment') {
+                var user = $('#userhidden').attr('user');
+                if (user.length < 1) {
+                    $('body').append(TepLoging());
+                    return
+                }
+                ;
+                if (err) {
+                    var content = me.find('.vern[data-type=content]').val();
+                    if (content.length < 1) {
+                        $.alert('请输入内容！')
+                    } else if (content.length > 120) {
+                    }
+                }
+            }
+            ;
+            if (!err) {
+                function beforeSend() {
+                    var tp = me.data('type');
+                    me.addClass('sending');
+                    var fa = me.parents('form');
+                    switch (tp) {
+                        case'login':
+                            break;
+                        case'register':
+                            break;
+                        case'thirdreg':
+                            break;
+                        case'trlogin':
+                            break;
+                        case'findbyphone':
+                            break;
+                        case'getCode':
+                            break
+                    }
+                };
+                function callback(response) {
+                    var tp = me.data('type');
+                    me.removeClass('sending');
+                    err = false;
+                    switch (tp) {
+                        case'login':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'findbyemail':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'register':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'thirdreg':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'trlogin':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'setEmail':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'headimg':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'loginDialog':
+                            window.location.reload();
+                            break;
+                        case'addblack':
+                            window.location.reload();
+                            break;
+                        case'comment':
+                            $.alert('评论成功！', function () {
+                                window.location.reload()
+                            });
+                            break;
+                        case'reply':
+                            var relaylist = me.parents('.relaylist');
+                            var replyBtn = relaylist.siblings('.reply').find('a');
+                            var data = response.data;
+                            var count = data.pager.pageCount;
+                            replyBtn.data('count', count);
+                            replyBtn.html('').html('回复<span class="c-9">（' + data.pager.rowCount + '）</span>');
+                            relaylist.find('.replay-count').html('共' + data.pager.rowCount + '条回复&nbsp;每页显示5条');
+                            relaylist.find('input.vern').val('');
+                            var param = {};
+                            param.htmlContainer = relaylist.find('.html-container');
+                            param.pageContainer = relaylist.find('.page-container');
+                            param.count = parseInt(count);
+                            param.pageindex = 1;
+                            param.url = '/api/v1/book/replys';
+                            param.data = {};
+                            param.data.commentId = relaylist.data('id');
+                            if (param.count != 1) {
+                                window.pager.setPage(param)
+                            }
+                            ;
+                            param.htmlContainer.html('').html(data.html);
+                            param.htmlContainer.find('.cover-ad').lazyload();
+                            break;
+                        case'findbyphone':
+                            if (response.status == '200') {
+                                me.find('dl.hidden').removeClass('hidden');
+                                me.find('dl').eq(0).addClass('hidden');
+                                var board = container.find('.member-prompt');
+                                board.removeClass('hidden');
+                                var ph = container.find('input[data-type=phone]').val();
+                                board.find('strong').text(ph);
+                                window.async[tp] = {};
+                                window.async[tp].sending = true;
+                                var data = {};
+                                data.time = 60;
+                                data.sec = 1000;
+                                data.el = me.find('a.sendcode');
+                                data.el.text('60秒');
+                                data.fn = function (data) {
+                                    data.el.text(data.time + '秒');
+                                    data.el.addClass('disable')
+                                };
+                                data.endFn = function (data) {
+                                    data.el.text('重新获取');
+                                    data.el.removeClass('disable');
+                                    me.removeClass('sending')
+                                };
+                                gTimer(data);
+                                me.data('type', 'sendcode');
+                                me.find('.code').addClass('vern')
+                            }
+                            break;
+                        case'resetpwd':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'sendcode':
+                            me.data('type', 'findbyphone');
+                            var ph = me.find('input[data-type=phone]').val();
+                            me.find('.mention strong').text(ph);
+                            me.find('.mention').removeClass('hidden');
+                            me.find('.phone-dl').addClass('hidden');
+                            me.find('.vcode-dl').removeClass('hidden');
+                            me.find('input[data-type=random]').addClass('vern');
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'getCode':
+                            me.data('type', 'setPhone');
+                            var ph = me.find('input[data-type=phone]').val();
+                            me.find('.mention strong').text(ph);
+                            me.find('.mention').removeClass('hidden');
+                            me.find('.phone-dl').addClass('hidden');
+                            me.find('.vcode-dl').removeClass('hidden');
+                            me.find('input[data-type=securityCode]').addClass('vern');
+                            var againBtn = $('.get-vcode');
+                            var sec = 60;
+                            againBtn.text(sec + '');
+                            againBtn.addClass('disable');
+                            clearInterval(window.timer);
+                            window.timer = setInterval(function () {
+                                sec--;
+                                if (sec < 0) {
+                                    againBtn.text('重新获取');
+                                    againBtn.removeClass('disable');
+                                    clearInterval(window.timer)
+                                } else {
+                                    againBtn.text(sec + '')
+                                }
+                            }, 1000);
+                            break;
+                        case'setPhone':
+                            window.location.href = response.redirectUrl;
+                            break;
+                        case'setInfo':
+                            if (response.msg)$.alert(response.msg);
+                            break;
+                        case'setPwd':
+                            if (response.msg)$.alert(response.msg);
+                            break;
+                        default:
+                            break
+                    }
+                }
+
+                var errCallback = function (response) {
+                    var tp = me.data('type');
+                    me.removeClass('sending');
+                    switch (response.status) {
+                        case 503:
+                            if (tp == 'loginDialog') {
+                                var iBox = me.find('input[data-type="username"]').siblings('span');
+                                iBox.removeClass().addClass('icon-false').addClass('red');
+                                iBox.html('<i><\/i>' + response.msg)
+                            } else {
+                                var iBox = me.find('span.error');
+                                iBox.text(response.msg)
+                            }
+                            break;
+                        case 506:
+                            var ph = me.find('input[data-type=random]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 600:
+                            var ph = me.find('input[data-type=nickname]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 601:
+                            var ph = me.find('input[data-type=nickname]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 704:
+                            var ph = me.find('input[data-type=oldpwd]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 808:
+                            var ph = me.find('input[data-type=random]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 811:
+                            var ph = me.find('input[data-type=phone]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 815:
+                            var ph = me.find('input[data-type=phone]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 818:
+                            var ph = me.find('input[data-type=phone]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        case 819:
+                            var ph = me.find('input[data-type=email]');
+                            var iBox = ph.siblings('span');
+                            iBox.html('<i><\/i>' + response.msg);
+                            iBox.removeClass().addClass('icon-false').addClass('red');
+                            break;
+                        default:
+                            verCon.tipFnc(response.tp, me, response.msg, true);
+                            break
+                    }
+                };
+                data.url = type;
+                data.type = 'POST';
+                data.param = param;
+                data.beforeSend = beforeSend;
+                data.callback = callback;
+                data.errCallback = errCallback;
+                sendData.send(data)
+            }
+            break
+    }
+});
+// search
+;var searchContainer = $('#search-content');
+searchContainer.on('click', '.tap', function (e) {
+    var me = $(this)
+}).on('change', '.search-select', function (e) {
+    var me = $(this);
+    var form = $('form[name=searchForm]');
+    var query = form.find('input').val();
+    var pageSize = $('#search-select').val();
+    var url = '/search?query=' + query + '&pageSize=' + pageSize;
+    window.location.href = url
+}).on('click', '.bookCollect', function () {
+    var bookid = $(this).attr('data-id');
+    var _this = $(this);
+    $.get('/api/v1/favorite/' + bookid + '', function (res) {
+        if (res.status == '901') {
+            $('body').append(TepLoging())
+        } else if (res.status == '902') {
+            collectBookFalse()
+        } else if (res.status == '200') {
+            _this.html('已收藏').addClass('btn-white-s').removeClass('btn-grey-s').removeClass('bookCollect');
+            collectBookOk()
+        }
+    })
+});
+$('.show-no-runing').on('click', function () {
+    $.dialog({
+        id: 'win-bookredstyle',
+        wrapClass: 'size520',
+        title: '提示',
+        bodyClass: 'message tip-read-style',
+        bodyHtml: ' <h4>亲，这本书目前无法在网站阅读!</h4><p>您可以选择以下两种方式进行阅读：</p>',
+        butClass: 'pt-55',
+        btnHtml: '<ol> <li class="num-bg"><span>1</span>下载手机客户端进行阅读 <a href="/download" class="blue-btn pt-size-30" target="_blank">进入下载页面</a> </li><li class="num-bg"><span>2</span>通过手机浏览器登陆“ <a href="http://wap.tadu.com" class="link">wap.tadu.com</a> ”进行阅读</li></ol>'
+    })
+});
+// space_comment
+// ;var commentDialog=container.find('#comment-dialog');var commentContainer=container.find('#comment');if(commentContainer.size()>0){var html1='您还可以输<span class="orange" style="font-weight: bold">';var html2='已超出<span class="red" style="font-weight: bold">';var commentTimer=setInterval(function(){var text=commentContainer.find('textarea').val().length;var word=120-text;if(word>=0){word=word+'';var html=html1+word+'</span>个字符！';commentContainer.find('.word-div').html('').html(html)}else{word=0-word+'';var html=html2+word+'</span>个字符！';commentContainer.find('.word-div').html('').html(html)}},1000)};container.on('click','.show-comment-dialog',function(e){var me=$(this);window.cid=me.data('cid');function callback(data){};var param={};param.cid=cid;param.content='content';var data={};data.url='comment',data.type='POST';data.param=param;data.callback=callback;sendData.send(data)});commentDialog.on('click','.submit',function(e){var me=$(this);var cid=window.cid;var content=commentDialog.find('.content');if(!content){return false};if(content.length>15){};function callback(data){};var param={};param.cid=cid;param.content=content;var data={};data.url='comment';data.type='POST';data.param=param;data.callback=callback;sendData(data)});
+
+// 女生专区
+;container.on('mouseenter', '.index-girl-cover', function () {
+    var me = $(this);
+    var fa = me.parents('.index-girl-cover');
+    var oShadow = fa.find('.shadow');
+    var oLayer = fa.find('.shadow-layer');
+    oShadow.show();
+    oLayer.show();
+}).on('mouseeleave', '.index-girl-cover', function () {
+    var fa = me.parents('.index-girl-cover');
+    var oShadow = fa.find('.shadow');
+    var oLayer = fa.find('.shadow-layer');
+    oShadow.hide();
+    oLayer.hide();
+});
+// load page
+window.loadPage = function (id, url, time, callback) {
+
+    window.sleep(time, function () {
+        $(id + "").load(url + "", function (response, status) {
+            window.refresh();
+            if (callback && ((typeof callback) == "function")) {
+                callback();
+                if (time =1000) {
+                    $(".sale-and-famous").css("display", "block");
+                    $(".index-hot-left").css("display", "block");
+                    $(".girl-main-content-right").css("display", "block");
+                }
+            }
+        })
+    })
+};
+window.sleep = function (time, fn) {
+    var i = 0;
+    if (time <= 0) {
+        time = 1
+    }
+    var timer = setInterval(function () {
+        i++;
+        if (i > 1) {
+            fn();
+            clearInterval(timer)
+        }
+    }, time);
+
+
+};
+
+// index-girl-cover
+;container.on('mouseenter', '.index-girl-cover', function (e) {
+    var me = $(this);
+    var oShadow = me.find('.shadow-index-girl');
+    oShadow.show();
+}).on('mouseleave', '.index-girl-cover', function (e) {
+    var me = $(this);
+    var oShadow = me.find('.shadow-index-girl');
+    oShadow.hide();
+    console.log(me);
+});
+
+// common.js
+$(document).ready(function () {
+    /*if ($("#friendLinks")) {
+        loadPage("#friendLinks", "/friendLinks", 2000)
+    }*/
+    if ($("#hotSearchKeys")) {
+        loadPage("#hotSearchKeys", "/hotsearch", 200)
+    }
+    if ($("#taduSpeaker")) {
+        loadPage("#taduSpeaker", "/taduspeaker", 500, function () {
+            window.sleep(1000, function () {
+                $(".login-side-").carousel({auto: 5000, vertical: true})
+            })
+        })
+    }
+    var oRuleLinkHash = window.location.hash;
+    if (oRuleLinkHash == "#rule-link") {
+        var me = $("#rule-link");
+        var that = me.find("i");
+        that.removeClass("menu-hide").addClass("menu-show");
+        me.next("div").removeClass("cont-hide").addClass("cont-show")
+    }
+    $(".tadu-code-close").click(function () {
+        $(".tadu-code").hide()
+    })
+});
+
+
+// new-head
+;(function () {
+    ;
+    $(function () {
+        var headcontainer = $('#head-container');
+        var head = headcontainer.find('.head-new');
+
+        // 懒加载
+        $('img[data-src]').lazyload();
+
+        // 头部标签栏：鼠标移上、移出效果：：开始
+        head.find('.login-user').hover(function () {
+            var me = $(this);
+            me.find('.login-user-pop').removeClass('hidden');
+        }, function () {
+            var me = $(this);
+            me.find('.login-user-pop').addClass('hidden');
+        });
+
+        head.find('.user-read-main').hover(function () {
+            var me = $(this);
+            me.find('.user-read-pop').removeClass('hidden');
+        }, function () {
+            var me = $(this);
+            me.find('.user-read-pop').addClass('hidden');
+        });
+
+        head.find('.phone-main').hover(function () {
+            var me = $(this);
+            me.find('.phone-code').removeClass('hidden');
+        }, function () {
+            var me = $(this);
+            me.find('.phone-code').addClass('hidden');
+        });
+        // 头部标签栏：鼠标移上、移出效果：：结束
+
+        // 塔读新闻：滚动
+        var oTaduNews = headcontainer.find('#tadu-news');
+        var oTaduNewsUl = oTaduNews.find('ul');
+        var oTaduNewsLi = oTaduNewsUl.find('li');
+
+        var oTaduNewsLiHt = oTaduNewsLi.height();
+        var oTaduNewsUlHt = oTaduNewsLiHt * (oTaduNewsLi.size() + 2) + 'px';
+
+        var timer = null;
+        var index = 0;
+        var iSpeed = 600;
+        var iSpeedGap = 5000;
+
+        oTaduNewsUl.css({
+            height: oTaduNewsUlHt,
+            top: -oTaduNewsLiHt + 'px'
+        });
+
+        oTaduNewsUl.append($(oTaduNewsLi.get(0)).clone(true));
+        oTaduNewsUl.prepend($(oTaduNewsLi.get(oTaduNewsLi.size() - 1)).clone(true));
+
+        timer = setInterval(animate, iSpeedGap);
+
+        oTaduNewsUl.mouseover(function () {
+            clearInterval(timer);
+        });
+
+        oTaduNewsUl.mouseout(function () {
+            timer = setInterval(animate, iSpeedGap);
+        });
+
+        function animate() {
+            if (oTaduNewsUl.is(":animated")) {
+                return;
+            }
+            index++;
+            oTaduNewsUl.animate({
+                top: -(index + 1) * oTaduNewsLiHt + 'px'
+            }, iSpeed, function () {
+                if (index == -1) {
+                    index = oTaduNewsLi.size() - 1;
+                    oTaduNewsUl.css({
+                        top: -(index + 1) * oTaduNewsLiHt + 'px'
+                    });
+                }
+                else if (index == oTaduNewsLi.size()) {
+                    index = 0;
+                    oTaduNewsUl.css({
+                        top: -(index + 1) * oTaduNewsLiHt + 'px'
+                    });
+                }
+                ;
+            });
+        }
+
+    });
+
+})();
