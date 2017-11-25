@@ -197,110 +197,70 @@
                     <li>重磅女生<s></s></li>
                 </ul>
                 <div class="bg-tab-content">
-                    <?php foreach($data as $key=>$val){ ?>
-                    <?php
-                  // var_dump($val);
-                   // var_dump($val["book_name"]);
-?>
-                    <!-- div开始 -->
-                     <div class="boy-content">
-                        <a href="http://www.tadu.com/book/368855/" target="_blank" class="img a-href-block left bookcover-parent">
-                            <img alt="一个人，一座城，一生心疼" title="一个人，一座城，一生心疼" src="" class="bookcover-img">
-                            <div class="bookcover-name-layer bookcover-xm-name">
-                                <h2>一个人，一座城，一生心疼12312312312</h2>
-                                <p>梅吉</p>
-                            </div>
-                        </a>
-                        <div class="boy-detail">
-                            <h3 class="bold-title" title="一个人，一座城，一生心疼"><a href="http://www.tadu.com/book/368855/" target="_blank"> <?php printf($val["book_name"])?></a>
-                            </h3>
+                    <?php foreach($data['data'] as $key=>$val){ ?>
+                    	<?php 
+                    		$imageurl=$val['image_url']; 
+                    		$booname=$val['book_name']; 
+                    	?>
+	                    <!-- div开始 -->
+	                     <div class="boy-content">
+	                        <a href="http://www.tadu.com/book/368855/" target="_blank" class="img a-href-block left bookcover-parent">
+	                            <img alt="<?=$booname?>" title="<?=$booname?>" src="<?=$imageurl?>" class="bookcover-img">
+	                            <div class="bookcover-name-layer bookcover-xm-name">
+	                                <h2><?=$booname?>12312312312</h2>
+	                                <p>梅吉</p>
+	                            </div>
+	                        </a>
+	                        <div class="boy-detail">
+	                            <h3 class="bold-title" title="<?=$booname?>"><a href="http://www.tadu.com/book/368855/" target="_blank"><?=$booname?></a>
+	                            </h3>
 
-                            <p class="e-name"><a href="http://www.tadu.com/space/author/43756" target="_blank"><?php printf($val["author_id"])?></a>
-                            </p>
+	                            <p class="e-name"><a href="http://www.tadu.com/space/author/43756" target="_blank"><?=$val['author_id']?></a>
+	                            </p>
 
-                            <p class="detial-over"><a href="http://www.tadu.com/book/368855/" target="_blank"><?php printf($val["short_introduce"])?></a>
-                            </p>
+	                            <p class="detial-over"><a href="http://www.tadu.com/book/368855/" target="_blank"><?=$val['short_introduce']?></a>
+	                            </p>
 
-                            <p><a title="一个人，一座城，一生心疼" href="http://www.tadu.com/book/368855/" class="read-btn" target="_blank">立即阅读</a></p>
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                    <!-- div结束 -->                    
-                <?php } ?>
-
-                    <div class="boy-content">
-                            <a href="http://www.tadu.com/book/362051/" target="_blank" class="img a-href-block left bookcover-parent">
-                                <img alt="我靠鬼怪吃饭1灵能门诊" title="我靠鬼怪吃饭1灵能门诊" data-src="http://media.tadu.com//2012/06/27/16/48/40036_208fc5986c89486c8a8c2d498fd442e5_140_112.jpg" src="css/index/40036_208fc5986c89486c8a8c2d498fd442e5_140_112.jpg" class="bookcover-img">
-                                <div class="bookcover-name-layer bookcover-xm-name">
-                                    <h2>我靠鬼怪吃饭1灵能门诊</h2>
-                                    <p>追月逐花</p>
-                                </div>
-                            </a>
-
-                            <div class="boy-detail">
-                                <h3 class="bold-title" title="我靠鬼怪吃饭1灵能门诊"><a href="http://www.tadu.com/book/362051/" target="_blank">我靠鬼怪吃饭1灵能门诊</a>
-                                </h3>
-
-                                <p class="e-name"><a href="http://www.tadu.com/space/author/15310" target="_blank">追月逐花</a>
-                                </p>
-
-                                <p class="detial-over"><a href="http://www.tadu.com/book/362051/" target="_blank">在爱情方面，他一开始暗恋美丽成熟的她，后来感情渐渐转向，竟然陷入了一场前无古人后无来者的诡异爱情……
-</a>
-                                </p>
-
-                                <p><a title="我靠鬼怪吃饭1灵能门诊" href="http://www.tadu.com/book/362051/" class="read-btn" target="_blank">立即阅读</a></p>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-                                    </div>
+	                            <p><a title="<?=$booname?>" href="http://www.tadu.com/book/368855/" class="read-btn" target="_blank">立即阅读</a></p>
+	                        </div>
+	                        <div class="clearfix"></div>
+	                    </div>
+	                    <!-- div结束 -->                    
+              		<?php } ?>
+                </div>
                 <div class="bg-tab-content hidden">
-                                            <div class="boy-content">
-                            <a href="http://www.tadu.com/book/464136/" class="img a-href-block left bookcover-parent" target="_blank">
-                                <img alt="我们爱到悲伤止步" title="我们爱到悲伤止步" src="css/index/cover.png" data-src="http://media.tadu.com//2016/02/26/14/43/00777_96530d86653540a084c2233f26799715_140_112.jpg" class="bookcover-img">
-                                <div class="bookcover-name-layer bookcover-xm-name">
-                                    <h2>我们爱到悲伤止步</h2>
-                                    <p>糖衣古典</p>
-                                </div>
-                            </a>
+                    <?php foreach($data['data'] as $key=>$val){ ?>
+                    	<?php 
+                    		$imageurl=$val['image_url']; 
+                    		$booname=$val['book_name']."000"; 
+                    	?>
+                    	<!-- div开始 -->
+	                     <div class="boy-content">
+	                        <a href="" target="_blank" class="img a-href-block left bookcover-parent">
+	                            <img alt="<?=$booname?>" title="<?=$booname?>" src="<?=$imageurl?>" class="bookcover-img">
+	                            <div class="bookcover-name-layer bookcover-xm-name">
+	                                <h2><?=$booname?></h2>
+	                                <p>梅吉</p>
+	                            </div>
+	                        </a>
+	                        <div class="boy-detail">
+	                            <h3 class="bold-title" title="<?=$booname?>"><a href="http://www.tadu.com/book/368855/" target="_blank"><?=$booname?></a>
+	                            </h3>
 
-                            <div class="boy-detail">
-                                <h3 class="bold-title" title="我们爱到悲伤止步"><a href="http://www.tadu.com/book/464136/" target="_blank">我们爱到悲伤止步</a>
-                                </h3>
+	                            <p class="e-name"><a href="http://www.tadu.com/space/author/43756" target="_blank"><?=$val['author_id']?></a>
+	                            </p>
 
-                                <p class="e-name"><a href="http://www.tadu.com/space/author/42992" target="_blank">糖衣古典</a>
-                                </p>
+	                            <p class="detial-over"><a href="http://www.tadu.com/book/368855/" target="_blank"><?=$val['short_introduce']?></a>
+	                            </p>
 
-                                <p class="detial-over"><a href="http://www.tadu.com/book/464136/" target="_blank">一个名叫婉兮的女子高考落榜之后，只身一人，远赴异地他乡，为生活四处奔波……
-</a></p>
-
-                                <p><a title="我们爱到悲伤止步" href="http://www.tadu.com/book/464136/" class="read-btn" target="_blank">立即阅读</a></p>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-                                            <div class="boy-content">
-                            <a href="http://www.tadu.com/book/409679/" class="img a-href-block left bookcover-parent" target="_blank">
-                                <img alt="陪伴是最长情的告白" title="陪伴是最长情的告白" src="css/index/cover.png" data-src="http://media.tadu.com//2014/11/05/12/08/11966_471d5d24388c442997ffd1b8d4cbbd17_140_112.jpg" class="bookcover-img">
-                                <div class="bookcover-name-layer bookcover-xm-name">
-                                    <h2>陪伴是最长情的告白</h2>
-                                    <p>天涯蝴蝶浪子</p>
-                                </div>
-                            </a>
-
-                            <div class="boy-detail">
-                                <h3 class="bold-title" title="陪伴是最长情的告白"><a href="http://www.tadu.com/book/409679/" target="_blank">陪伴是最长情的告白</a>
-                                </h3>
-
-                                <p class="e-name"><a href="http://www.tadu.com/space/author/67667" target="_blank">天涯蝴蝶浪子</a>
-                                </p>
-
-                                <p class="detial-over"><a href="http://www.tadu.com/book/409679/" target="_blank">有你相伴，那便是最好的时光。我走你走过的路，并不是想证明我有多爱你，只是想离你更近一点。
-</a></p>
-
-                                <p><a title="陪伴是最长情的告白" href="http://www.tadu.com/book/409679/" class="read-btn" target="_blank">立即阅读</a></p>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-                                    </div>
+	                            <p><a title="<?=$booname?>" href="http://www.tadu.com/book/368855/" class="read-btn" target="_blank">立即阅读</a></p>
+	                        </div>
+	                        <div class="clearfix"></div>
+	                    </div>
+	                    <!-- div结束 -->  
+              		<?php } ?>
+                        
+                </div>
             </div>
             <!-- 重磅男女结束 -->
             <div class="new-lists">

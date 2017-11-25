@@ -10,12 +10,15 @@ class Index extends Controller
 		$books =$book -> getBoy();
 		/* echo '<meta charset="utf-8"/>';
         echo '我们自己的网站';*/
-		$data= $books;
+		//$data= $books;
 		/* $this->assign('data',[
             'books'  => $books
         ]); */
-		//var_dump($data[0]["book_name"]);return;  
+		$data = array(
+			'data'=>$books,
+		);  
 		$this->assign('data',$data);
+		//$this->assign('bookname',$books['book_name']);
 		return $this->fetch(); 
 	}
     /* public function index()
