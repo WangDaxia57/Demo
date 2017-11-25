@@ -4,7 +4,7 @@ use think\Controller;
 
 
 
-class Admin extends Controller
+class User extends Controller
 {
 	public function index(){
 		return $this->fetch(); 
@@ -15,7 +15,7 @@ class Admin extends Controller
 	}
 	
     /*后台页面*/
-	public function admin(){
+	public function user(){
 		return $this->fetch(); 
 	}
 

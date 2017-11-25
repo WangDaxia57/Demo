@@ -2,7 +2,7 @@
 namespace app\index\model;
 use think\Input;
 
-class Admin extends \think\Model
+class User extends \think\Model
 {
     /*登录验证*/
     public static function login($name, $password)
@@ -12,7 +12,7 @@ class Admin extends \think\Model
 		var_dump($where);die;
         $where['user_password'] = md5($password);
 		/* trace( md5($password)); */
-        $user=Admin::where($where)->find();
+        $user=User::where($where)->find();
 		var_dump($user);die;		
         if ($user) {
             unset($user["password"]);

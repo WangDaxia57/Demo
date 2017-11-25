@@ -21,9 +21,9 @@ return [
 	'register'=>'index/register/register',
 	'login'=>'index/login/login',
 	'logining'=>'index/login/logining',
-	 'admin'=>'index/admin/admin',
-	 'changepsw'=>'index/admin/changepsw',
-	 'logout'=>'index/admin/logout',
-	 'changepassword'=>'index/admin/changepassword',
+	 'user'=>'index/user/user',
+	 'changepsw'=>'index/user/changepsw',
+	 'logout'=>'index/user/logout',
+	 'changepassword'=>'index/user/changepassword',
 
 ];
