@@ -25,5 +25,7 @@ return [
 	 'changepsw'=>'index/user/changepsw',
 	 'logout'=>'index/user/logout',
 	 'changepassword'=>'index/user/changepassword',
+	 /*作者后台*/
+	 'author'=>'author_admin/index/index',
 
 ];

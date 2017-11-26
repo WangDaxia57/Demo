@@ -21,4 +21,6 @@ return [
     ],
 
     //'app_debug' => true,   /*调试模式*/
+	
+	$GLOBALS['_path'] = 'localhost:8080'
 ];
