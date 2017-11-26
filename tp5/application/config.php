@@ -20,7 +20,7 @@ return [
         404 =>  APP_PATH.'404.html',
     ],
 
-    //'app_debug' => true,   /*调试模式*/
+    'app_debug' => true,   /*调试模式*/
 	
 	$GLOBALS['_path'] = 'localhost:8080'
 ];

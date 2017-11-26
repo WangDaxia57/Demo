@@ -17,15 +17,34 @@ return [
         ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
         ':name' => ['index/hello', ['method' => 'post']],
     ],
+    /*网站主页*/
 	'index'=>'index/index/index',
+
+	//用户注册
 	'register'=>'index/register/register',
+
+	//用户登录
 	'login'=>'index/login/login',
+
+	//不能用
 	'logining'=>'index/login/logining',
+
+	//测试
 	 'user'=>'index/user/user',
+
+	 //
 	 'changepsw'=>'index/user/changepsw',
 	 'logout'=>'index/user/logout',
 	 'changepassword'=>'index/user/changepassword',
+
+
+
 	 /*作者后台*/
 	 'author'=>'author_admin/index/index',
+	 'work' => 'author_admin/work/index',
+	 'create' => 'author_admin/work/create',
+	 'createinfo' => 'author_admin/work/createinfo',
+	 'docreate' => 'author_admin/work/docreate'
+
 
 ];
