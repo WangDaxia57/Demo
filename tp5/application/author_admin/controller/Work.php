@@ -2,7 +2,6 @@
 namespace app\author_admin\controller;
 use think\Controller;
 use think\Request;
-use \app\index\model\Book;
 use think\Db;
 class Work extends Controller{
 
@@ -21,42 +20,25 @@ class Work extends Controller{
 	public function  create(){
 		return $this->fetch('works/create'); 
 	}
+
 	// 添加页面功能
 	public function  docreate(){
-	
-		//$book = new Book;
+		$work = new \app\author_admin\model\Work;
+		$rel = $work->docreate( $_POST	);
+		if (!empty($rel)) {
+			echo json_encode(array('msg'=>'添加成功','code'=>0));die;
+		}else{
+			echo json_encode(array('msg'=>'添加失败','code'=>1));die;
+		}
+	}
 
-		/*
-			var type_id = "<?=$_GET['type_id']?>";
-    	// 作品名称
-    	var bookName = $("#bookName").val();
-    	// 作品标签
-    	var taglistId = $("#taglistId").val();
-    	// 授权类型
-    	var radioclass = $(".radioclass:checked").val();
-    	// 作品介绍
-    	var intro = $("#intro").val();
-    	//  扉页寄语
-    	var pagemessage = $("#pagemessage").val();
-
-
-		
-		Db::table('book')
-    ->data(['book_name'=>$_POST["book_name"]])
-    ->insert();*/
-
-		//$book = new Book( $_POST );
-		//$rel = $book->allowField(['book_name'])->save();
-		//var_dump($_POST["book_name"]);die;
-	$rel=Db::table('book')
-    ->data(['book_name'=>$_POST["book_name"]])
-    ->insert();	
-		var_dump($rel);
-		echo json_encode($rel);die;
-		
+	public function createok(){
+		return $this->fetch('works/createok'); 
 	}
 	public function  createinfo(){
 		return $this->fetch('works/createinfo'); 
 	}
+
+
 }
  ?>

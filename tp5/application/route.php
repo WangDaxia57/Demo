@@ -44,7 +44,8 @@ return [
 	 'work' => 'author_admin/work/index',
 	 'create' => 'author_admin/work/create',
 	 'createinfo' => 'author_admin/work/createinfo',
-	 'docreate' => 'author_admin/work/docreate'
+	 'docreate' => 'author_admin/work/docreate',
+	 'createok' => 'author_admin/work/createok'
 
 
 ];
