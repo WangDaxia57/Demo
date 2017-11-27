@@ -3,7 +3,7 @@ namespace app\author_admin\controller;
 use think\Controller;
 use think\Request;
 use \app\index\model\Book;
-
+use think\Db;
 class Work extends Controller{
 
 	public function index(){
@@ -23,6 +23,7 @@ class Work extends Controller{
 	}
 	// 添加页面功能
 	public function  docreate(){
+	
 		//$book = new Book;
 
 		/*
@@ -39,14 +40,18 @@ class Work extends Controller{
     	var pagemessage = $("#pagemessage").val();
 
 
-		*/
+		
 		Db::table('book')
     ->data(['book_name'=>$_POST["book_name"]])
-    ->insert();
+    ->insert();*/
 
 		//$book = new Book( $_POST );
 		//$rel = $book->allowField(['book_name'])->save();
-		var_dump($rel);die;
+		//var_dump($_POST["book_name"]);die;
+	$rel=Db::table('book')
+    ->data(['book_name'=>$_POST["book_name"]])
+    ->insert();	
+		var_dump($rel);
 		echo json_encode($rel);die;
 		
 	}

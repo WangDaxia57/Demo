@@ -423,7 +423,8 @@
     // 提交代码
 
     $("#createNovelBtn").click(function(){
-    	// 1、男频，2、女频
+
+		// 1、男频，2、女频
     	var type_id = "<?=$_GET['type_id']?>";
     	// 作品名称
     	var bookName = $("#bookName").val();
@@ -435,7 +436,7 @@
     	var intro = $("#intro").val();
     	//  扉页寄语
     	var pagemessage = $("#pagemessage").val();
-
+		
         $.ajax({
         	type:'POST',
             url:'docreate',
