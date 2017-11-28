@@ -17,13 +17,42 @@ _nodes.$content=_nodes.$box.find('[data-node="content"]');_nodes.$content.text(c
 function hide(closeCallback){if(_autoHideTimeout){clearTimeout(_autoHideTimeout);}
 _nodes.$box.fadeOut('slow',function(){if(typeof closeCallback==='function'){closeCallback();}});}
 function setPosition(){var left=($(window).width()-_nodes.$box.width())/2;_nodes.$box.css('left',left+'px');}
-_util.initNameSpace("CS");CS.topTip={'show':show,'hide':hide,'setPosition':setPosition};})(jQuery);(function($){var _util=CS.util,_uiBinder=CS.uiBinder,_topTip=CS.topTip,_mask=CS.mask,_dialog=CS.dialog;var _params={},_nodes={},_isRequesting=0,_isChecking=0,_isSubmitting=0,_isCheckrealname=0,_isJoinArticle=0,maskConfirm=null,_maskArticlePopup=null,_pager=null;var _ajaxUrls={'checkNovelCreate':'/Contentv2/Booknovels/ajaxchecknovelcreate.html','getNovelList':'/Contentv2/Booknovels/ajaxnovels.html','updateNovelStatus':'/Contentv2/Booksubmit/updatestatus.html','checkRealname':'/Contentv2/Authorrealname/ajaxCheckRealname','applyPass':'/Contentv2/Booksubmit/applyPass','ajaxSetNovel':'/Contentv2/article/ajaxSetNovel','articleSelect':'/article/select/'};var _novelListTpl=['<%each list as item index%>','<tr <%if index === 0%>class="active"<%/if%>>','<td><%if item.show_flag == 1 %><span class="icon zw-icon"></span><%/if%></td>','<td class="tl">','<div class="work-photo">','<a href="<%=item.bookTitleUrl%>" target="_blank">'+'<img src="<%=item.coverurl || imgUrl+\"/contentv2/zwfm.png\"%>" width="83" height="108" alt="作品封面"/></a>','</div>','<p class="work-name"><a href="<%=item.bookTitleUrl%>" target="_blank"><%=item.title%></a><%if item.is_buy_out == 1 %><i>买断交稿</i><%/if%></p>','</td>','<%if item.lastchaptertitle && item.newchapterid > 0 %>','<td class="tl"><a href="<%=item.ChaterUrl%>" target="_blank"><%=item.lastchaptertitle%></a><br/><em class="time"><%=item.lastnewchaptertime%></em></td>','<%else%>','<td class="tl"><a href="javascript:">无最新章节</a></td>','<%/if%>','<td><em><%=item.categoryName%></em></td>','<td><em class="Num"><%=item.favNum%></em></td>','<td>'+'<%=item.statusName%>'+'<%if item.auditstatus == 20 %><a data-cbid="<%=item.CBID%>" href="javascript:"><font color="#4ea8ff">重新审核</font></a><%/if%>'+'<%if item.auditstatus == -1 && item.lockStatus == -1 %><a data-bid="<%=item.CBID%>" data-ltime="<%=item.lockTime%>" data-words="<%=item.allwords%>" data-last="<%=item.hasApplyLastDay%>" href="javascript:;" class="blue examination">申诉解禁</a><%/if%>'+'<%if item.auditstatus == -1 && item.lockStatus == 1 %><a href="javascript:;" class="examination">申诉中</a><%/if%>'+'</td>','<td>','<div class="dib-wrap">','<%if artidx > 1 %>','<a class="button zw-btn" join-article="<%=item.CBID%>" join-title="<%=item.title%>" join-img="<%=item.coverurl || imgUrl+\"/contentv2/zwfm.png\"%>" href="javascript:">参与征文</a>','<%else%>','<a class="button blue" url-chapter="<%=item.addChapterUrl%>" data-catid=<%=item.categoryid%> href="javascript:"><span class="icon"></span><i>写新章节</i></a>','<a class="button white" url-chapter="<%=item.ManageChapterUrl%>" data-catid=<%=item.categoryid%> href="javascript:" ><span class="icon"></span><i>已发布章节</i></a>','<%/if%>','</div>','</td>','</tr>','<%/each%>'].join('');function init(imgUrl,artidx,articlename,selectid){_params.imgUrl=imgUrl||'';_params.artidx=artidx||0;_params.selectid=selectid||0;_params.articlename=articlename||'';_params.jointitle='';_params.joinimg='';_nodes.$novelList=$('#novelList');_nodes.$pager=$('#pager');_nodes.$maskArticlePopup=$('#maskArticlePopup');_getNovelList(1);_bindEvent();_againCheckNovel();_filterManhuaNovel();_apply_box();_bindEventJoinarticle();}
+_util.initNameSpace("CS");CS.topTip={'show':show,'hide':hide,'setPosition':setPosition};})(jQuery);(function($){var _util=CS.util,_uiBinder=CS.uiBinder,_topTip=CS.topTip,_mask=CS.mask,_dialog=CS.dialog;var _params={},_nodes={},_isRequesting=0,_isChecking=0,_isSubmitting=0,_isCheckrealname=0,_isJoinArticle=0,maskConfirm=null,_maskArticlePopup=null,_pager=null;var _ajaxUrls={'checkNovelCreate':'/Contentv2/Booknovels/ajaxchecknovelcreate.html','getNovelList':'/Contentv2/Booknovels/ajaxnovels.html','updateNovelStatus':'/Contentv2/Booksubmit/updatestatus.html','checkRealname':'/Contentv2/Authorrealname/ajaxCheckRealname','applyPass':'/Contentv2/Booksubmit/applyPass','ajaxSetNovel':'/Contentv2/article/ajaxSetNovel','articleSelect':'/article/select/'};var _novelListTpl=['<%each list as item index%>','<tr <%if index === 0%>class="active"<%/if%>>','<td><%if item.show_flag == 1 %><span class="icon zw-icon"></span><%/if%></td>','<td class="tl">','<div class="work-photo">','<a href="<%=item.bookTitleUrl%>" target="_blank">'+'<img src="<%=item.coverurl || imgUrl+\"/contentv2/zwfm.png\"%>" width="83" height="108" alt="作品封面"/></a>','</div>','<p class="work-name"><a href="<%=item.bookTitleUrl%>" target="_blank"><%=item.title%></a><%if item.is_buy_out == 1 %><i>买断交稿</i><%/if%></p>','</td>','<%if item.lastchaptertitle && item.newchapterid > 0 %>','<td class="tl"><a href="<%=item.ChaterUrl%>" target="_blank"><%=item.lastchaptertitle%></a><br/><em class="time"><%=item.lastnewchaptertime%></em></td>','<%else%>','<td class="tl"><a href="javascript:">无最新章节</a></td>','<%/if%>','<td><em><%=item.categoryName%></em></td>','<td><em class="Num"><%=item.favNum%></em></td>','<td>'+'<%=item.statusName%>'+'<%if item.auditstatus == 20 %><a data-cbid="<%=item.CBID%>" href="javascript:"><font color="#4ea8ff">重新审核</font></a><%/if%>'+'<%if item.auditstatus == -1 && item.lockStatus == -1 %><a data-bid="<%=item.CBID%>" data-ltime="<%=item.lockTime%>" data-words="<%=item.allwords%>" data-last="<%=item.hasApplyLastDay%>" href="javascript:;" class="blue examination">申诉解禁</a><%/if%>'+'<%if item.auditstatus == -1 && item.lockStatus == 1 %><a href="javascript:;" class="examination">申诉中</a><%/if%>'+'</td>','<td>','<div class="dib-wrap">','<%if artidx > 1 %>','<a class="button zw-btn" join-article="<%=item.CBID%>" join-title="<%=item.title%>" join-img="<%=item.coverurl || imgUrl+\"/contentv2/zwfm.png\"%>" href="javascript:">参与征文</a>','<%else%>','<a class="button blue" url-chapter="<%=item.addChapterUrl%>" data-catid=<%=item.categoryid%> href="javascript:"><span class="icon"></span><i>写新章节</i></a>','<a class="button white" url-chapter="<%=item.ManageChapterUrl%>" data-catid=<%=item.categoryid%> href="javascript:" ><span class="icon"></span><i>已发布章节</i></a>','<%/if%>','</div>','</td>','</tr>','<%/each%>'].join('');
+function init(imgUrl,artidx,articlename,selectid)
+{
+_params.imgUrl=imgUrl||'';
+_params.artidx=artidx||0;
+_params.selectid=selectid||0;
+_params.articlename=articlename||'';
+_params.jointitle='';
+_params.joinimg='';
+_nodes.$novelList=$('#novelList');
+_nodes.$pager=$('#pager');
+_nodes.$maskArticlePopup=$('#maskArticlePopup');
+_getNovelList(1);
+_bindEvent();
+_againCheckNovel();
+_filterManhuaNovel();
+_apply_box();
+_bindEventJoinarticle();
+}
 function _bindEvent(){$('#createNovelBtn').on('click',function(){_checkRealname('_checkNovelCreate','');return false;});$('#novelList').on('mouseenter','tr',function(){$(this).addClass('active').siblings('tr').removeClass('active');});}
 function _getNovelList(page){if(_isRequesting){return;}
-_isRequesting=1;_nodes.$novelList.empty();_nodes.$pager.hide();_util.request({url:_ajaxUrls.getNovelList,type:'post',dataType:'json',data:{'p':page,'artidx':_params.artidx},success:function(json){if(!json){return;}
-if(json.status){if(!json.data.list||json.data.list.length===0){if(_params.artidx<=1)
-{$('#bookManageNone').removeClass('hidden');}
-$('#bookManageExist').addClass('hidden');return;}else{var tpl=_uiBinder.bindData(_novelListTpl,{'list':json.data.list,'imgUrl':_params.imgUrl,'artidx':_params.artidx});_nodes.$novelList.html(tpl);_nodes.$pager.show();if(!_pager){_pager=_nodes.$pager.pagination(json.data.pageCount,{'callback':_getNovelList});$('#bookCount').text(json.data.bookCount);}}}else{_dialog.alert(json.info||'操作失败，请稍后再试');}},error:function(){_dialog.alert('操作失败，请稍后再试');},complete:function(){_isRequesting=0;}});}
+_isRequesting=1;_nodes.$novelList.empty();_nodes.$pager.hide();_util.request({url:_ajaxUrls.getNovelList,type:'post',dataType:'json',data:{'p':page,'artidx':_params.artidx},success:function(json){
+	if(!json){return;}
+	if(json.status){
+		if(!json.data.list||json.data.list.length===0){
+			if(_params.artidx<=1)
+				{$('#bookManageNone').removeClass('hidden');}
+			$('#bookManageExist').addClass('hidden');return;
+		}else{
+		var tpl=_uiBinder.bindData(_novelListTpl,{'list':json.data.list,'imgUrl':_params.imgUrl,'artidx':_params.artidx});_nodes.$novelList.html(tpl);_nodes.$pager.show();if(!_pager){_pager=_nodes.$pager.pagination(json.data.pageCount,{'callback':_getNovelList});$('#bookCount').text(json.data.bookCount);}
+		}
+	}else
+	{_
+		dialog.alert(json.info||'操作失败，请稍后再试');
+	}
+	},error:function(){_dialog.alert('操作失败，请稍后再试');},complete:function(){_isRequesting=0;}});}
 function _filterManhuaNovel()
 {$('#novelList').on('click','[url-chapter]',function(){var catid=$(this).attr('data-catid');var urlchapter=$(this).attr('url-chapter');if(catid==40001)
 {_dialog.alert('功能开发中，敬请期待。');return;}
