@@ -36,27 +36,39 @@
 <div class="top-header">
     <div class="top-contain-">
         <div id="taduSpeaker" class="login-side- f-l running" style="visibility: visible; overflow: hidden; position: relative; z-index: 2; left: 0px; height: 34px;"><!-- 小喇叭 -->
-<ul class="f-l" style="margin: 0px; padding: 0px; position: relative; list-style-type: none; z-index: 1; height: 102px; top: -68px;"><li style="overflow: hidden; width: 120px; height: 34px;">
-        <a href="http://www.tadu.com/Tougao.shtml" target="_blank">咸鱼文学官方投稿方式</a>
-    </li>
-        <li style="overflow: hidden; width: 120px; height: 34px;">
-        <a href="http://www.tadu.com/Tougao.shtml" target="_blank">咸鱼文学官方投稿方式</a>
-    </li>
-    <li style="overflow: hidden; width: 120px; height: 34px;">
-        <a href="http://www.tadu.com/Tougao.shtml" target="_blank">咸鱼文学官方投稿方式</a>
-    </li></ul>
-<div class="clearfix"></div></div>
+			<ul class="f-l" style="margin: 0px; padding: 0px; position: relative; list-style-type: none; z-index: 1; height: 102px; top: -68px;">
+				<li style="overflow: hidden; width: 120px; height: 34px;">
+					<a href="#" target="_blank">咸鱼文学官方投稿方式</a>
+				</li>
+				<li style="overflow: hidden; width: 120px; height: 34px;">
+					<a href="#" target="_blank">咸鱼文学官方投稿方式</a>
+				</li>
+				<li style="overflow: hidden; width: 120px; height: 34px;">
+					<a href="#" target="_blank">咸鱼文学官方投稿方式</a>
+				</li>
+			</ul>
+		<div class="clearfix"></div></div>
         <div class="loginBar f-r">
             <!--已登录-->
+			<?php
+				//var_dump($data['account'].$data['password']);die;
+				if(!empty($data['account'])and !empty($data['password'])){
+			?>
+			<?php
+			}else{
+			?>
                         <!--未登录-->
             <div class="unlogin-">
                 <a target="_self" href="http://www.tadu.com/toLogin" class="login-space" rel="nofollow">登录</a>
                 <label class="line-">|</label>
-                <a href="http://www.tadu.com/reg" class="login-space" rel="nofollow">注册</a>
+                <a href="register" class="login-space" rel="nofollow">注册</a>
                 <label class="line-">|</label>
-                <a target="_blank" href="http://www.tadu.com/help/reader" class="login-space" rel="nofollow">帮助中心</a>
+                <a target="_blank" href="#help" class="login-space" rel="nofollow">帮助中心</a>
             </div>
-                    </div>
+			<?php
+			}
+			?>
+        </div>
         <div class="clearfix"></div>
     </div>
 </div>
@@ -140,7 +152,7 @@
             </li>
             -->
             <li class="">
-                <a href="http://author.tadu.com/" target="_blank" rel="nofollow">作者专区</a>
+                <a id="author_interface" href="" target="_blank" rel="nofollow">作者专区</a>
             </li>
             <!--<li class="">
                 <a href="http://www.tadu.com/download" target="_blank" rel="nofollow">下载专区</a>
@@ -154,6 +166,16 @@
             -->
         </ul>
  	</div>
+	<!--自己代码开始-->
+<script>
+	$(function(){
+		$("#author_interface").click(function(){
+			window.location.href="create";
+		});
+	});
+</script>
+<!--自己代码结束-->
+
     <div class="navbar-s">
         <ul>
            <!-- <li style="margin-left: 0;">
@@ -192,7 +214,8 @@
         </ul>
     </div>
     <div class="clearfix"></div>
-</div>        <div id="container" class="content index-content">
+</div>
+<div id="container" class="content index-content">
     <div class="index-top-hot">
         <div class="index-top-hot-right">
             <div class="boy-girl-tab">

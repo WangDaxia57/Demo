@@ -16,6 +16,8 @@ class Index extends Controller
         ]); */
 		$data = array(
 			'data'=>$books,
+			'account'=>null,
+			'password'=>null
 		);  
 		$this->assign('data',$data);
 		//$this->assign('bookname',$books['book_name']);
