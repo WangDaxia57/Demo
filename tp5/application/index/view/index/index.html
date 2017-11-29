@@ -57,9 +57,9 @@
 			<?php
 			}else{
 			?>
-                        <!--未登录-->
+            <!--未登录-->
             <div class="unlogin-">
-                <a target="_self" href="http://www.tadu.com/toLogin" class="login-space" rel="nofollow">登录</a>
+                <a id="login_interface" name="user" style="cursor:pointer"  class="login-space" rel="nofollow">登录</a>
                 <label class="line-">|</label>
                 <a href="register" class="login-space" rel="nofollow">注册</a>
                 <label class="line-">|</label>
@@ -72,6 +72,7 @@
         <div class="clearfix"></div>
     </div>
 </div>
+
 <a href="http://www.tadu.com/?jdfwkey=vxtvk2#" class="a-block friend-company-all" style="display: none;">
     <img class="friend-close" src="css/index/close.jpg" alt="">
 </a>
@@ -152,7 +153,7 @@
             </li>
             -->
             <li class="">
-                <a id="author_interface" href="" target="_blank" rel="nofollow">作者专区</a>
+                <a id="author_interface" style="cursor:pointer" name="author" rel="nofollow">作者专区</a>
             </li>
             <!--<li class="">
                 <a href="http://www.tadu.com/download" target="_blank" rel="nofollow">下载专区</a>
@@ -168,11 +169,25 @@
  	</div>
 	<!--自己代码开始-->
 <script>
+	//登陆
 	$(function(){
+		$('#login_interface').on('click', function () {
+			//登陆标签的name 应该配置成权限类型区分登陆入口
+			var	target=document.getElementById("login_interface").name ;
+            window.location.href="login?login_type="+target;
+        })
+		
+	})
+	$(function(){
+	//作者专区
 		$("#author_interface").click(function(){
-			window.location.href="create";
+			//登陆标签的name 应该配置成权限类型区分登陆入口
+			var	target=document.getElementById("author_interface").name ;
+            window.location.href="login?login_type="+target;
 		});
 	});
+	
+
 </script>
 <!--自己代码结束-->
 
