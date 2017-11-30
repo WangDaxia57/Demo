@@ -2,6 +2,8 @@
 namespace app\index\model;
 use think\Input;
 use think\Db;
+use think\Session;
+
 class User extends \think\Model
 {
     /*登录验证*/
@@ -16,7 +18,7 @@ class User extends \think\Model
 		var_dump($user);die;		
         if ($user) {
             unset($user["password"]);
-            session("ext_user", $user);
+            session($name, $user);
 			trace("#################8888#######################");
             return true;
         }else{
@@ -36,11 +38,13 @@ class User extends \think\Model
 				
         if ($user) {
             unset($user["password"]);
-            session("ext_user", $user);
-			trace("#################8888#######################");
+            //Session::clear();
+			session_start();
+			session('ext_user', $user);
+			
             return true;
         }else{
-			trace("#################4444444#######################");
+			
             return false;
         }
     }

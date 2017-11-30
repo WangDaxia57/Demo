@@ -2,11 +2,13 @@
 namespace app\index\controller;
 use think\Controller;
 use \app\index\model\Book;
-
+use think\Session;
 class Index extends Controller
 {
 	public function index(){
-		var_dump($_GET);die;
+		//input('param.account')---获取重定向传入的参数
+		//var_dump(input('param.account'));
+		
 		$book = new Book;
 		$books =$book -> getBoy();		
 		/* echo '<meta charset="utf-8"/>';
@@ -15,10 +17,13 @@ class Index extends Controller
 		/* $this->assign('data',[
             'books'  => $books
         ]); */
-        //var_dump($_GET['name']);die        
+		session_start();
+		$user=Session('ext_user');
+		var_dump($_SESSION);
+		var_dump($user);die;
 		$data = array(
 			'data'=>$books,
-			'account'=>null,
+			'account'=>empty($user)?null:$user["user_account"],
 			'password'=>null
 		);  
 		$this->assign('data',$data);

@@ -13,7 +13,6 @@ class Login extends Controller{
 
     public function login(){
     	//$this->assign(array('type'=>$_GET['login_type']);
-
 		return $this->fetch();
     }
 	
@@ -38,7 +37,7 @@ class Login extends Controller{
     	);
 		$check=\app\index\model\User::login1($name, $password);
 		if ($check) {
-			$this->redirect('Index/index',array('pwd' => $password));
+			$this->redirect('index/index/index');			
 			 // header(strtolower("Location: http://localhost:8080"));
 			/* $url = 'index';
 			echo "<script>window.location.href='".$url."'</script>"; */

@@ -51,12 +51,13 @@
         <div class="loginBar f-r">
             <!--已登录-->
 			<?php
-				//var_dump($data['account'].$data['password']);die;
+				var_dump($data['account']);
 				//var_dump($_GET['name']);die;
-				if(!empty($data['account'])and !empty($data['password'])){
+				if(!empty($data['account'])){
 			?>
 			<?php
-			}else{
+			}
+			else{
 			?>
             <!--未登录-->
             <div class="unlogin-">
@@ -175,10 +176,11 @@
 		$('#login_interface').on('click', function () {
 			//登陆标签的name 应该配置成权限类型区分登陆入口
 			var	target=document.getElementById("login_interface").name ;
+			console.log('ddddddddddddddddddddddddddddd');
             window.location.href="login?login_type="+target;
-        })
+        });
 		
-	})
+	});
 	$(function(){
 	//作者专区
 		$("#author_interface").click(function(){
