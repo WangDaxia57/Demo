@@ -4,21 +4,27 @@ use think\Input;
 use think\Controller;
 use Captcha;
 use think\View;
+use \think\Session;
 
-class Login extends Controller
-{ 
+class Login extends Controller{
+
+		// $user = Session::get('ext_user');
+		// var_dump($user);die;
+
     public function login(){
+    	//$this->assign(array('type'=>$_GET['login_type']);
 
-      return $this->fetch();
+		return $this->fetch();
     }
 	
-	public function logining()
-    {
-	
-      $name = input('request.name');
-      $password  = input('request.password');
-      $data = input('request.captcha');
-	
+	public function logining(){
+		$name = $_POST['name'];
+		$password = $_POST['password'];
+		// $name = $_POST['name'];
+  //   	$name = input('request.name');
+  //   	$password  = input('request.password');
+  //   	$data = input('request.captcha');
+	 
 	 
 	 //暂时不验证验证码
      // dump($data);
@@ -26,11 +32,14 @@ class Login extends Controller
        //验证失败
        //   return $this->error("验证码错误");
     //  };
-    
-		$check=\app\index\model\Admin::login1($name, $password);
-		
+    	$userdata = array(
+    		'pwd' => $password,
+    		'name'=>$name
+    	);
+		$check=\app\index\model\User::login1($name, $password);
 		if ($check) {
-			 header(strtolower("Location: http://localhost:8080"));
+			$this->redirect('Index/index',array('pwd' => $password));
+			 // header(strtolower("Location: http://localhost:8080"));
 			/* $url = 'index';
 			echo "<script>window.location.href='".$url."'</script>"; */
 			/* header(strtolower("location:". config("web") . "admin")); */

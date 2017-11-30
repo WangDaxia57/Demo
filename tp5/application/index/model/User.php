@@ -1,7 +1,7 @@
 <?php
 namespace app\index\model;
 use think\Input;
-
+use think\Db;
 class User extends \think\Model
 {
     /*登录验证*/
@@ -32,7 +32,7 @@ class User extends \think\Model
         $where['user_account'] = $name;
         $where['user_password'] = md5($password);
 		/* trace( md5($password)); */
-        $user=Admin::where($where)->find();
+        $user=Db::table('user')->where($where)->find();
 				
         if ($user) {
             unset($user["password"]);

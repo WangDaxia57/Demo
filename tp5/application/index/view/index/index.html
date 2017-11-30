@@ -52,6 +52,7 @@
             <!--已登录-->
 			<?php
 				//var_dump($data['account'].$data['password']);die;
+				//var_dump($_GET['name']);die;
 				if(!empty($data['account'])and !empty($data['password'])){
 			?>
 			<?php
@@ -181,6 +182,7 @@
 	$(function(){
 	//作者专区
 		$("#author_interface").click(function(){
+
 			//登陆标签的name 应该配置成权限类型区分登陆入口
 			var	target=document.getElementById("author_interface").name ;
             window.location.href="login?login_type="+target;

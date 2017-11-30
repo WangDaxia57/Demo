@@ -6,14 +6,16 @@ use \app\index\model\Book;
 class Index extends Controller
 {
 	public function index(){
+		var_dump($_GET);die;
 		$book = new Book;
-		$books =$book -> getBoy();
+		$books =$book -> getBoy();		
 		/* echo '<meta charset="utf-8"/>';
         echo '我们自己的网站';*/
 		//$data= $books;
 		/* $this->assign('data',[
             'books'  => $books
         ]); */
+        //var_dump($_GET['name']);die        
 		$data = array(
 			'data'=>$books,
 			'account'=>null,
