@@ -184,10 +184,15 @@
 	$(function(){
 	//作者专区
 		$("#author_interface").click(function(){
-
-			//登陆标签的name 应该配置成权限类型区分登陆入口
-			var	target=document.getElementById("author_interface").name ;
-            window.location.href="login?login_type="+target;
+			var account="<?=$data['account']?>";
+			if(account!=null){
+			window.location.href="author";
+			}else{
+				//登陆标签的name 应该配置成权限类型区分登陆入口
+				var	target=document.getElementById("author_interface").name ;
+            	window.location.href="login?login_type="+target;
+			}
+			
 		});
 	});
 	

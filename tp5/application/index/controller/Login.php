@@ -42,7 +42,6 @@ class Login extends Controller{
 			/* $url = 'index';
 			echo "<script>window.location.href='".$url."'</script>"; */
 			/* header(strtolower("location:". config("web") . "admin")); */
-			
 			exit();
 		}else{
 			return $this->error("用户名或密码错误","Login/login");

@@ -19,8 +19,8 @@ class Index extends Controller
         ]); */
 		session_start();
 		$user=Session('ext_user');
-		var_dump($_SESSION);
-		var_dump($user);die;
+		//var_dump($_SESSION);
+		//var_dump($user);die;
 		$data = array(
 			'data'=>$books,
 			'account'=>empty($user)?null:$user["user_account"],
