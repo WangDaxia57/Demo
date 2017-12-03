@@ -26,6 +26,9 @@ class User extends \think\Model
             return false;
         }
     }
+
+    // 走的是这个方法
+
 	/*登录验证*/
     public static function login1($name, $password)
     {

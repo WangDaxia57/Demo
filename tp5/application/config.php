@@ -7,6 +7,8 @@
 return [
     "web_root"   => "/tp5/public/",
     "web"       => "",
+    //
+	$GLOBALS['_path'] = 'localhost:8080',
 
     'session' => [
         'auto_start' => true,
@@ -22,5 +24,5 @@ return [
 
     'app_debug' => true,   /*调试模式*/
 	
-	$GLOBALS['_path'] = 'localhost:8080'
+	
 ];

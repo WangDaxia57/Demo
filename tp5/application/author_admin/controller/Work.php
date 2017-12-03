@@ -13,6 +13,8 @@ class Work extends Controller{
 		//	'path'=>$GLOBALS['_path']
 		 //);
 		 //$this->assign('data',$data);
+		//$this->fetch('../works/index')
+		
 		return $this->fetch('works/index'); 
 	}
 

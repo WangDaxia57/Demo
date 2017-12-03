@@ -49,12 +49,15 @@
 			</ul>
 		<div class="clearfix"></div></div>
         <div class="loginBar f-r">
-            <!--已登录-->
 			<?php
-				var_dump($data['account']);
+				//var_dump($data['account']);
 				//var_dump($_GET['name']);die;
 				if(!empty($data['account'])){
 			?>
+            <!--已登录-->
+            <div class="unlogin-">
+                <a id="log_out" style="cursor:pointer"  class="login-space" rel="nofollow">退出111log_out</a>
+            </div>
 			<?php
 			}
 			else{
@@ -185,8 +188,8 @@
 	//作者专区
 		$("#author_interface").click(function(){
 			var account="<?=$data['account']?>";
-			if(account!=null){
-			window.location.href="author";
+			if(account){
+			     window.location.href="author";
 			}else{
 				//登陆标签的name 应该配置成权限类型区分登陆入口
 				var	target=document.getElementById("author_interface").name ;
@@ -194,9 +197,15 @@
 			}
 			
 		});
+
+        //用户退出
+        $("#log_out").click(function(){
+            window.location.href="logout";
+        });
 	});
 	
-
+    // 用户退出
+   
 </script>
 <!--自己代码结束-->
 

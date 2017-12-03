@@ -6,6 +6,32 @@ use think\Controller;
 
 class User extends Controller
 {
+	/*退出登录*/
+    public function logout(){
+	   	session_start();
+    	$logout=\app\index\model\User::logout();
+
+    	//var_dump($logout);die;
+    	//var_dump('1111111');die;
+//        \app\index\model\User::logout();
+    //var_dump($_SESSION);die;
+      if (!session('ext_user')) {
+      	var_dump('12123');
+      	//var_dump('123123');die;
+        //header(strtolower("location:". config("web") . "login"));
+        //exit();
+        header(strtolower("location:". config("web") . "index"));
+        exit();
+        //return $this->redirect('index/index/index');
+      }
+      return NULL;
+    }
+
+
+
+
+
+	//==============================================
 	public function index(){
 		return $this->fetch(); 
 	}
@@ -29,16 +55,7 @@ class User extends Controller
        }
        return $this->fetch(); 
     }
-	/*退出登录*/
-    public function logout(){
-        \app\index\model\Admin::logout();
-
-      if (!session('?ext_user')) {
-        header(strtolower("location:". config("web") . "login"));
-        exit();
-      }
-      return NULL;
-    }
+	
 	/*修改密码*/
     public function changepassword(){
       $oldpassword = md5(input('request.oldpassword'));
