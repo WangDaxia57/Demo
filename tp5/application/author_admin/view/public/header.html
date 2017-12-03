@@ -17,12 +17,12 @@
           		</li>
           		<li class="line"></li>
           		<li id="headPhotoBox" class="headPhoto">
-	            	<p><em><img src="css/author/index/photo_default.png" width="36" height="36" alt=""></em><a class="userName" href="javascript:">{$data2['author_name']}</a></p>
+	            	<p><em><img src="css/author/index/photo_default.png" width="36" height="36" alt=""></em><a class="userName" href="javascript:">{$author['author_name']}</a></p>
 	            	<dl class="userBox">
 		              	<cite class="icon whiteSj"></cite>
 		              	<dd class="userInfo hidden">
 		                  <!-- 增加身份标识"ico-level",silver为白金作家，dashen为大神作家 -->
-		                <p class="name" title="王大瞎">王大瞎</p>                 
+		                <p class="name" title="{$author['author_name']}">{$author['author_name']}</p>                 
 		                <p class="level"><span><em style="width:70%">0/0</em></span></p>               
 		            	</dd>
 		              	<dd class="link"><a href="https://write.qq.com/authors/person.html"><i>完整度68%</i>作家资料</a></dd>

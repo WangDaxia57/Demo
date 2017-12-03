@@ -3,7 +3,7 @@ namespace app\author_admin\controller;
 use think\Controller;
 use think\Request;
 use think\Db;
-class Work extends Controller{
+class Work extends AuthorBase{
 
 	public function index(){
 		//echo '1111111';return;
@@ -14,12 +14,18 @@ class Work extends Controller{
 		 //);
 		 //$this->assign('data',$data);
 		//$this->fetch('../works/index')
-		
-		return $this->fetch('works/index'); 
+		$data =$this -> login_state();
+		if(!empty($data)){
+			//本页面刷新
+			$this->assign('data',$data);
+			return $this->fetch('works/index'); 
+		}
+		//return $this->fetch('works/index'); 
 	}
 
 	// 添加页面显示
 	public function  create(){
+
 		return $this->fetch('works/create'); 
 	}
 
