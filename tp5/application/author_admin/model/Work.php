@@ -30,5 +30,5 @@ class Work extends \think\Model{
 	    	])
 	    	->insert();	
 		return $rel;
-		}
+	}
 } 
