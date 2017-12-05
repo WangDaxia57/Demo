@@ -24,12 +24,15 @@ class AuthorBase extends Controller{
 		$pub = new Public_model;
 
 		$author =$pub -> checkpower( $user['user_id'] );
-
+		//var_dump($author['_id']);die;
 		// 作者
 		if (!empty($author['_id'])) {
-			
+			$work = new \app\author_admin\model\Work;
+			$book=$work->getBooks();
+			var_dump($book);die;
 			$data = array(
 				'path'=>$GLOBALS['_path'],
+				'total' => count($author),
 				'author' => $author
 			);
 			//发给作者后台公用头文件开始
