@@ -14,12 +14,15 @@ class Work extends AuthorBase{
 		 //);
 		 //$this->assign('data',$data);
 		//$this->fetch('../works/index')
-		$data =$this -> login_state();
-		if(!empty($data)){
+		$rel =$this -> login_state();
+		//$a = array('a','b');
+		//$data = array(
+		//	'a' => $a,
+			//'total' => $data['total']
+		//);
 			//本页面刷新
-			$this->assign('data',$data);
+			$this->assign('data',$rel);
 			return $this->fetch('works/index'); 
-		}
 		//return $this->fetch('works/index'); 
 	}
 

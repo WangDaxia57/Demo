@@ -131,13 +131,15 @@
             <!-- end 小屏下的列表-->
 
         </div>
-        
 <link rel="stylesheet" type="text/css" href="css/author/works/contentv2_book_manage.css"><div class="mainRight fl">
         <div class="crumbsWrap">
         <i><span>作品管理</span></i>
     </div>
     <div class="msgBoxTitle">
-        <p class="f12 c555">当前作品总数<span id="bookCount" class="blue Num"></span>本</p>
+        <p class="f12 c555">当前作品总数
+        	<span id="bookCount" class="blue Num">{$data['total']}</span>
+        	本
+        </p>
         <a id="create" class="create button" data-url="/contentv2/booknovels/createsite" href="javascript:;"><em class="icon"></em>创建作品</a>
         <a class="zwhd button border-btn" href="https://write.qq.com/article/index.html"><em class="icon"></em>征文活动（10）</a>     </div>
          <!-- 存在作品 -->
@@ -165,45 +167,95 @@
                 </tr>
                 </thead>
                 <tbody id="novelList">
-				<tr class=""><td></td>
-					<td class="tl">
-						<div class="work-photo">
-							<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">
-								<img src="css/author/works/default_56ed79d585d760c61c4c93c480ce61c7.png" width="83" height="108" alt="作品封面">
-							</a>
-						</div>
-						<p class="work-name">
-							<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">都市炼魂师</a>
-						</p>
-					</td>
-					<td class="tl">
-						<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UBUCRwBmDERbF1ZiWjRRbVJRUG8MSFUSCUoCHwhbUWUARQVTDGoMQ1ALVgIAcgUmUioObww8" target="_blank">
+                <!--代码开始-->
+                <?php 
+              		$authorname=$data['author']['author_name'];
+                 ?>
+                <?php foreach($data['book'] as $key=>$val){ ?>
+                    	<?php 
+                    		$imageurl=$val['image_url']; 
+                    		$booname=$val['book_name']; 
+                    		$lastupdatetime=$val['last_update_at'];
+                    		$collection=$val['collection'];
+                    	?>
+			<tr class=""><td></td>
+				<td class="tl">
+					<div class="work-photo">
+						<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">
+							<img src="{$imageurl}" width="83" height="108" alt="作品封面">
+						</a>
+					</div>
+					<p class="work-name">
+						<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">{$booname}</a>
+					</p>
+				</td>
+				<td class="tl">
+					<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UBUCRwBmDERbF1ZiWjRRbVJRUG8MSFUSCUoCHwhbUWUARQVTDGoMQ1ALVgIAcgUmUioObww8" target="_blank">
 						第四十章 你输了！</a>
-						<br>
-						<em class="time">2016-08-25 23:54</em>
-					</td>
-					<td>
-						<em>都市编辑组</em>
-					</td>
-					<td>
-						<em class="Num">40</em>
-					</td>
-					<td>连载中</td>
-					<td>
-						<div class="dib-wrap">
-							<a class="button blue" url-chapter="/booknovels/chaptertmp/CBID/4855735703543903/addType/1.html" data-catid="20019" href="javascript:">
-								<span class="icon"></span>
-								<i>写新章节</i>
-							</a>
-							<a class="button white" url-chapter="/booknovels/chaptermanage/CBID/4855735703543903.html" data-catid="20019" href="javascript:">
-								<span class="icon"></span>
-								<i>已发布章节</i>
-							</a>
-						</div>
-					</td>
-				</tr>
-				<tr class="">
-					<td></td>
+					<br>
+					<em class="time">{$lastupdatetime}</em>
+				</td>
+				<td>
+					<em>都市编辑组</em>
+				</td>
+				<td>
+					<em class="Num">{$collection}</em>
+				</td>
+				<td>连载中</td>
+				<td>
+					<div class="dib-wrap">
+						<a class="button blue" url-chapter="/booknovels/chaptertmp/CBID/4855735703543903/addType/1.html" data-catid="20019" href="javascript:">
+							<span class="icon"></span>
+							<i>写新章节</i>
+						</a>
+						<a class="button white" url-chapter="/booknovels/chaptermanage/CBID/4855735703543903.html" data-catid="20019" href="javascript:">
+							<span class="icon"></span>
+							<i>已发布章节</i>
+						</a>
+					</div>
+				</td>
+			</tr>
+                <!--代码结束-->
+		<?php } ?>
+			 <!--<tr class="">
+				<tr class=""><td></td>
+				<td class="tl">
+					<div class="work-photo">
+						<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">
+							<img src="css/author/works/default_56ed79d585d760c61c4c93c480ce61c7.png" width="83" height="108" alt="作品封面">
+						</a>
+					</div>
+					<p class="work-name">
+						<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UGUCMwA7DDdba1ZnWj1RNQ" target="_blank">都市炼魂师</a>
+					</p>
+				</td>
+				<td class="tl">
+					<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBToPfQd7UBUCRwBmDERbF1ZiWjRRbVJRUG8MSFUSCUoCHwhbUWUARQVTDGoMQ1ALVgIAcgUmUioObww8" target="_blank">
+						第四十章 你输了！</a>
+					<br>
+					<em class="time">2016-08-25 23:54</em>
+				</td>
+				<td>
+					<em>都市编辑组</em>
+				</td>
+				<td>
+					<em class="Num">40</em>
+				</td>
+				<td>连载中</td>
+				<td>
+					<div class="dib-wrap">
+						<a class="button blue" url-chapter="/booknovels/chaptertmp/CBID/4855735703543903/addType/1.html" data-catid="20019" href="javascript:">
+							<span class="icon"></span>
+							<i>写新章节</i>
+						</a>
+						<a class="button white" url-chapter="/booknovels/chaptermanage/CBID/4855735703543903.html" data-catid="20019" href="javascript:">
+							<span class="icon"></span>
+							<i>已发布章节</i>
+						</a>
+					</div>
+				</td>
+			</tr>
+				<td></td>
 					<td class="tl">
 						<div class="work-photo">
 							<a href="https://write.qq.com/jump/url.html?token=AGUMdVstViNaP1EvUihQZgxlVSYJZAI3CG5RcQBsBW4MLwxwUCNWfQA8BTtSag50DG8LZgwvBScPdgd7UGYCNgA6DDBbYVZg" target="_blank">
@@ -217,7 +269,8 @@
 					<td class="tl">
 						<a href="javascript:">无最新章节</a>
 						</td><td>
-						<em>游戏编辑组</em></td><td><em class="Num">7</em></td><td>锁定/屏蔽<a data-bid="21963919000285302" data-ltime="2015-09-15 15:00:00" data-words="12278" data-last="-1" href="javascript:;" class="blue examination">申诉解禁</a></td><td><div class="dib-wrap"><a class="button blue" url-chapter="/booknovels/chaptertmp/CBID/21963919000285302/addType/1.html" data-catid="20050" href="javascript:"><span class="icon"></span><i>写新章节</i></a><a class="button white" url-chapter="/booknovels/chaptermanage/CBID/21963919000285302.html" data-catid="20050" href="javascript:"><span class="icon"></span><i>已发布章节</i></a></div></td></tr></tbody>
+						<em>游戏编辑组</em></td><td><em class="Num">7</em></td><td>锁定/屏蔽<a data-bid="21963919000285302" data-ltime="2015-09-15 15:00:00" data-words="12278" data-last="-1" href="javascript:;" class="blue examination">申诉解禁</a></td><td><div class="dib-wrap"><a class="button blue" url-chapter="/booknovels/chaptertmp/CBID/21963919000285302/addType/1.html" data-catid="20050" href="javascript:"><span class="icon"></span><i>写新章节</i></a><a class="button white" url-chapter="/booknovels/chaptermanage/CBID/21963919000285302.html" data-catid="20050" href="javascript:"><span class="icon"></span><i>已发布章节</i></a></div></td></tr> -->
+		</tbody>
             </table>
         </div>
         <!-- 翻页组件 -->

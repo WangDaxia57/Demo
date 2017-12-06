@@ -28,16 +28,19 @@ class AuthorBase extends Controller{
 		// 作者
 		if (!empty($author['_id'])) {
 			$work = new \app\author_admin\model\Work;
-			$book=$work->getBooks();
-			var_dump($book);die;
+			
+			$book=$work->getBooks( $author['author_id'] );
 			$data = array(
 				'path'=>$GLOBALS['_path'],
-				'total' => count($author),
-				'author' => $author
+				'total' => count($book),
+				'author' => $author,
+				'book'=>$book
+
 			);
 			//发给作者后台公用头文件开始
-			$this->assign('author',$author);
-			$this->fetch('works/index');
+			$this->header($author);
+			//$this->assign('author',$author);
+			//$this->fetch('works/index');
 			//发给公用头文件结束
 			return $data;
 		}else{
@@ -48,6 +51,10 @@ class AuthorBase extends Controller{
 			 return null;
 		}
 		return null;
+	}
+	public function header($author){
+		$this->assign('author',$author);
+		$this->fetch('public/header');
 	}
 }
  ?>
