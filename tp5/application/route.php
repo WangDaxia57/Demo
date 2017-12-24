@@ -45,7 +45,13 @@ return [
 	 'create' => 'author_admin/work/create',
 	 'createinfo' => 'author_admin/work/createinfo',
 	 'docreate' => 'author_admin/work/docreate',
-	 'createok' => 'author_admin/work/createok'
+	 'createok' => 'author_admin/work/createok',
+	 'chapter'=>'author_admin/work/chaptertmp',
 
+//方法路由
+	// 章节添加
+	'addchapter' => 'author_admin/work/addchapter',
+	// 查看章节（章节详情）
+	'ajax_chapter' => 'author_admin/work/ajax_chapter',
 
 ];
