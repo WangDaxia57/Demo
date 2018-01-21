@@ -53,5 +53,6 @@ return [
 	'addchapter' => 'author_admin/work/addchapter',
 	// 查看章节（章节详情）
 	'ajax_chapter' => 'author_admin/work/ajax_chapter',
-
+	//选择章节
+	'select_chapter' => 'author_admin/work/selectchapter'
 ];

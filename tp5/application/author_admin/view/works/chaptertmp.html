@@ -134,7 +134,7 @@
         <!-- start PHP变量定义 -->
         <?php 
         	$book_name=$data['book_name'];
-
+        	$chapter_count=count($data['chapter_arr']);
          ?>
          <!-- end PHP变量定义 -->
 <link rel="stylesheet" type="text/css" href="css/author/chaptertmp/contentv2_book_manage.css"><link rel="stylesheet" type="text/css" href="css/author/chaptertmp/contentv2_timing_plugin.css">
@@ -158,7 +158,7 @@
         <div class="mLeftList fl">
             <div id="draftListWrap" class="leftListWrap">
                 <div class="titleBox">
-                    <p>共 0 章</p>
+                    <p>共 {$chapter_count} 章</p>
                 </div>
                 <div class="sectionManage">
                     <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 740px;"><div class="sectionList" id="sectionList" style="overflow: hidden; width: auto; height: 740px;">
@@ -542,13 +542,28 @@
 <!--自己的代码开始-->
 <script>
 $(function() {
-	
+	var chapter_id=null;
 	var colorvalue="rgb(187, 187, 187)"
 	var default_colorvalue="rgb(51, 51, 51)";
 	var strchaptertitle="#chaptertitle";
 	var strcon="#content";
 	var def_con_value=$(strcon).data("default");
 	var default_value=$(strchaptertitle).data("default");
+	var flag ='';
+	var type=0;//0是草稿箱  1是新建章节项存在
+	// 默认不显示
+	if("<?=$_GET['type']?>"!='undfined'){
+		flag = 'show';
+		type="<?=$_GET['type']?>";
+	}else{
+		flag ='hide';	
+	}
+	
+	/*if(flag=='hide'){
+		$('#draftList').children("li:first-child").css('display','none');
+		$('#draftList').children("li:nth-child(2)").addClass('act');
+	}*/
+	_InitSelect();//初始化
 	//$(strchaptertitle).css('color','black');
 
 	//console.log($(strchaptertitle).val());
@@ -596,6 +611,51 @@ $(function() {
 			}  
 		})
 	}
+	//初始化章节选中项
+	function _InitSelect(){
+		var select_chapter_id="<?=$data['select_chapter_id']?>";
+		var type="<?=$_GET['type']?>";
+		console.log(select_chapter_id);
+		if(type==0){
+			$('#draftList').children("li:first-child").css('display','none');
+			$('#draftList').children("li:nth-child(2)").addClass('act');
+			
+			/*$("#draftList").find('li').each(function(key,val){
+				if($(val).hasClass('act')){
+					$(val).removeClass('act');
+					
+					
+				}
+				var chapterid=$(val).find("div").data('zhangjieid');
+					console.log(chapterid);
+				if(select_chapter_id==chapterid){
+					$(val).addClass('act');
+					return;
+				}
+			});
+			//var ulNode = document.getElementById("draftList");
+			//var childrens = ulNode.childNodes;
+			//console.log(childrens);
+			//console.log(li_s);
+			var len = li_s.length;
+			for(var i=0;i<len;i++){
+				if(childrens[i].hasClass('act')){
+					childrens[i].removeClass('act');
+				}
+				var chapterid=childrens[i].children("div").dataset.zhangjieid;
+				if(select_chapter_id==chapterid){
+					childrens[i].addClass('act');
+					return;
+				}
+			}
+			$('#draftList').children("li:nth-child(2)").addClass('act');*/
+
+
+
+		}else{
+
+		}
+	}
 	//console.log($(strchaptertitle).css("color"));return;
    	//外部依赖
 	var _util = CS.util,
@@ -605,33 +665,69 @@ $(function() {
 		var volumeid=801;//$("selectedVolume").html();
 		if(!_checkDraftInfo())
 			return;
-		_saveInfo(volumeid);
+		var btntype="save";
+		_saveInfo(volumeid,btntype);
+		
 	});
 	//发布方法
 	$("#showPublishBtn").click(function(){
 		var volumeid=document.getElementById("selectedVolume").dataset.volumeid;//$("selectedVolume").html();
 		if(!_checkDraftInfo())
 			return;
-		_saveInfo(volumeid);
+		var btntype="showPublish";
+		_saveInfo(volumeid,btntype);
 	});
 	//保存数据
-	function _saveInfo(volumeid){
+	function _saveInfo(volumeid,type){
 		var book_id = "<?=$_GET['book_id']?>";
 		var chaptertitle=null;
 		chaptertitle = $("#chaptertitle").val();
 		var content = $("#content").val();
-		
+		if(chapter_id==undefined||chapter_id==null)
+			chapter_id=-1;
 		//console.log(chaptertitle,content);
 		/*#data-volumeid*/
 		$.ajax({
 			type:'POST',
 			url:'addchapter',
-			data:{'chaptertitle':chaptertitle,'content':content,'book_id':book_id,'volume_id':volumeid},
-			//dataType:'json',
+			data:{'type':type,'chapter_id':chapter_id,'chaptertitle':chaptertitle,'content':content,'book_id':book_id,'volume_id':volumeid},
+			dataType:'json',
 			success:function(msg){
-				console.log(msg);
+				console.log(msg.chapter_id);
+				if(msg.type=="save"){
+					if(msg.chapter_id!=-1){
+
+					}else{
+
+					}
+				}
+			//	window.location="chapter?book_id=<?=$_GET['book_id']?>&type=0";
 			}
 		});
+	}
+		//初始化章节选中项
+	function _InitSelect(){
+		var select_chapter_id="<?=$data['select_chapter_id']?>";
+		var type="<?=$_GET['type']?>";
+		console.log(select_chapter_id);
+		if(type==0){
+			$('#draftList').children("li:first-child").css('display','none');
+			$('#draftList').children("li:nth-child(2)").addClass('act');
+			
+			/*$("#draftList").find('li').each(function(key,val){
+				if($(val).hasClass('act')){
+					$(val).removeClass('act');
+					
+					
+				}
+				var chapterid=$(val).find("div").data('zhangjieid');
+					console.log(chapterid);
+				if(select_chapter_id==chapterid){
+					$(val).addClass('act');
+					return;
+				}
+			});*/
+		}
 	}
 	//数据验证
 	function _checkDraftInfo(){
@@ -655,32 +751,56 @@ $(function() {
 	}
 	// 切换章节标题
 	$(".sectionBox").click(function(e){
-		$(this).parents("#draftList").children("li:first-child").css('display','none');
-		var chapter_id = this.dataset.zhangjieid;
+		chapter_id = this.dataset.zhangjieid;
 		var book_id = "<?=$_GET['book_id']?>";
-
-		$.ajax({
-			type:'post',
-			url: 'ajax_chapter',
-			data:{'chapter_id':chapter_id,'book_id':book_id},
-			dataType:'json',
-			success:function(msg){
-				$(strchaptertitle).val(msg.chapter_name);
-				$(strchaptertitle).css('color','black');
-
-				$(strcon).val(msg.book_content);
-				$(strcon).css('color','black');
-
-				// 切换时设置章节id用于修改
-				$("#chapter_id").val(chapter_id);
+		//判断选中项是否存在
+		if(chapter_id==undefined){
+			return false;
+		}
+		else{
+			/*if(type==1){
+				$.ajax({
+					type:'post',
+					url: 'select_chapter',
+					data:{'chapter_id':chapter_id},
+					dataType:'json',
+					success:function(msg){
+						//location.reload();
+						console.log(msg.chapter_id);
+						window.location="chapter?book_id=<?=$_GET['book_id']?>&type=0";
+					}
+				});
+				return false;
 			}
-		});
+			else if(type==0)
+			{*/
+				
+				$(this).parents("#draftList").children("li:first-child").css('display','none');
+				$.ajax({
+					type:'post',
+					url: 'ajax_chapter',
+					data:{'chapter_id':chapter_id,'book_id':book_id},
+					dataType:'json',
+					success:function(msg){
+						$(strchaptertitle).val(msg.chapter_name);
+						$(strchaptertitle).css('color','black');
+
+						$(strcon).val(msg.book_content);
+						$(strcon).css('color','black');
+
+						// 切换时设置章节id用于修改
+						$("#chapter_id").val(chapter_id);
+					}
+				});
+			/*}*/
+		}
+		
 	});
 
 	// 因为添加和修改是同一个页面，所以这里可以偷个懒，点击添加按钮的时候刷新一下页面就好
 	$("#createButton").click(function(){
 		//console.log('create');
-		location.reload()
+		//location.reload();
 	});
 });
 </script>

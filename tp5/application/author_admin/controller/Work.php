@@ -75,6 +75,7 @@ class Work extends AuthorBase{
 		$book_id = $_GET['book_id'];
 		$work = new \app\author_admin\model\Work;
 		$volumes = $work->getVolume( $book_id );
+		$select_chapter_id=$work->getselectchapter("7001");//获取界面选中对象id
 		$rel =$this -> login_state();
 		// 章节列表
 		$chapter_arr = $work->showchapter( $book_id );
@@ -113,11 +114,11 @@ class Work extends AuthorBase{
 				'book_id'=>$book_id,
 				'sell_status_id'=>$sell_status_id,
 				'last_volume'=>end($volumes),
-				'chapter_arr'=>$chapter_arr
+				'chapter_arr'=>$chapter_arr,
+				'select_chapter_id'=>$select_chapter_id
 				//'chapter_name' => $chapter_name,
 				//'book_content' => $book_content
 			];	
-			//var_dump($data);return;
 			//本页面刷新''
 			$this->assign('data',$data);
 			return $this->fetch('works/chaptertmp'); 
@@ -132,12 +133,16 @@ class Work extends AuthorBase{
 		if(!empty($_POST['book_id']))
 			$addData['book_id'] = $_POST['book_id'];
 		if(!empty($_POST['chaptertitle']))
-		$addData['chapter_name'] = $_POST['chaptertitle'];
+			$addData['chapter_name'] = $_POST['chaptertitle'];
 		if(!empty($_POST['content']))
-		$addData['book_content'] = $_POST['content'];
+			$addData['book_content'] = $_POST['content'];
+		if(!empty($_POST['chapter_id']))
+			$addData['chapter_id'] = $_POST['chapter_id'];
+		if(!empty($_POST['type']))
+			$addData['type'] = $_POST['type'];
 		$work = new \app\author_admin\model\Work;
 		$data = $work->addchapter( $addData );
-		echo json_encode($data);die;
+		echo json_encode($addData);die;
 	}
 
 	// 
@@ -173,6 +178,17 @@ class Work extends AuthorBase{
 			'book_content' => $book_content
 		];
 		echo json_encode($data);die;
+	}
+
+	public function selectchapter(){
+		$select_chapter_id=$_POST['chapter_id'];
+		$string_id="7001";
+		if (!empty($select_chapter_id) ){
+			$work = new \app\author_admin\model\Work;
+			$detail = $work->select_chapter($select_chapter_id, $string_id);
+			echo json_encode($detail);die;
+			
+		}
 	}
 }
  ?>

@@ -104,28 +104,37 @@ class Work extends \think\Model{
 			if(!empty($data['book_id'])&&!empty($data['volume_id']))
 			{
 				//var_dump($data['volume_id']);die;
-				
-
 				//$count=Db::table('chapter'.$data['book_id'])->where('volume_id','=',$data['volume_id'])->max('chapter_id');
-
-
 				$count=Db::table('chapter'.$data['book_id'])->where('volume_id','=',$data['volume_id'])->select();
 				$ids = array();
 				foreach( $count as $key => $val){
 					$ids[$key] = $val['chapter_id'];
 				}
-				$num = max( $ids );
+				if(empty($ids))
+					$num=0;
+				else
+					$num = max( $ids );
 				$num=$num+1;
-				$rel=Db::table('chapter'.$data['book_id'])
-	    		->data([
-		    		'chapter_name'=>$data['chapter_name'],
-		    		'book_content'=>$data['book_content'],
-		    		'chapter_id'=>$num,
-		    		'book_id'=>$data['book_id'],
-		    		'volume_id'=>$data['volume_id']
-		    	])
-	    		->insert();	
-	    	
+				if($data['chapter_id']==-1)
+				{
+					$rel=Db::table('chapter'.$data['book_id'])
+		    		->data([
+			    		'chapter_name'=>$data['chapter_name'],
+			    		'book_content'=>$data['book_content'],
+			    		'chapter_id'=>$num,
+			    		'book_id'=>$data['book_id'],
+			    		'volume_id'=>$data['volume_id']
+			    	])
+		    		->insert();
+	    		}else{
+	    			//更新章节
+	    			$UpdateData =[
+		    			'chapter_name'=>$data['chapter_name'],
+		    			'book_content'=>$data['book_content'],
+
+	    			];
+	    			$rel = db('chapter'.$data['book_id'])->where('chapter_id',$data['chapter_id'])->update($UpdateData);
+	    		}
 	    		if($data['volume_id']!=801){
 	    			$editData =[
 		    			'latest_chapter'=>$data['chapter_name'],
@@ -135,8 +144,8 @@ class Work extends \think\Model{
 	    			$book = db('book')->where('book_id',$data['book_id'])->update($editData);
 
 	    		}
+				return $rel;
 	   		}
-			return $rel;
 		}
 	}
 
@@ -166,4 +175,22 @@ class Work extends \think\Model{
 			return $row;
 		}
 	}	
+
+	public function select_chapter($select_chapter_id,$string_id){
+		$editData =[
+		    		'string_name'=>$select_chapter_id,
+	    			];
+		$string = db('string')->where('string_id',$string_id)->update($editData);
+		if(!empty($string))
+			return true;
+		else
+			return false;
+	}
+	public function getselectchapter($string_id){
+		$row=Db::table('string')->where('string_id','=',$string_id)->find();
+		if(!empty($row))
+			return $row["string_name"];
+		else
+			return null;
+	}
 } 
