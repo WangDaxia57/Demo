@@ -144,7 +144,8 @@ class Work extends \think\Model{
 	    			$book = db('book')->where('book_id',$data['book_id'])->update($editData);
 
 	    		}
-				return $rel;
+	    		$last_data=Db::table('chapter'.$data['book_id'])->where('volume_id','=',$data['volume_id'])->where('chapter_id','=',$num)->find();
+	    		echo json_encode($last_data);die;
 	   		}
 		}
 	}

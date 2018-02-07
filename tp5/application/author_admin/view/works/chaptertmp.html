@@ -542,6 +542,9 @@
 <!--自己的代码开始-->
 <script>
 $(function() {
+    // json格式的章节列表
+    var json_chapter_arr = <?=$data['json_chapter_arr']?>;
+    // console.log(json_chapter_arr);return false;
 	var chapter_id=null;
 	var colorvalue="rgb(187, 187, 187)"
 	var default_colorvalue="rgb(51, 51, 51)";
@@ -612,14 +615,35 @@ $(function() {
 		})
 	}
 	//初始化章节选中项
-	function _InitSelect(){
-		var select_chapter_id="<?=$data['select_chapter_id']?>";
-		var type="<?=$_GET['type']?>";
-		console.log(select_chapter_id);
-		if(type==0){
+	function _InitSelect( tmp_type=null ){
+		var select_chapter_id = "<?=$data['select_chapter_id']?>";
+		var type = "";
+        if( !tmp_type ){
+            type = tmp_type;
+        }else{
+            type = "<?=$_GET['type']?>";
+        }
+
+        // console.log( type );
+        // return false;
+        // type=1的时候是新建，显示第一个框框，
+        // type=0的时候是查看，第一个框框隐藏
+
+		if( type==0 ){
+            // console.log( json_chapter_arr );
+            // 清空左面的标题列表
+            // $("#draftList").empty();
+
+            // console.log(new_chapter);
+            // $.each(json_chapter_arr,function(key, val){
+            //     console.log( val );
+            // });
+
+            // 重新赋值
+            // $("#draftList").append('123');
+            // console.log( str );
 			$('#draftList').children("li:first-child").css('display','none');
-			$('#draftList').children("li:nth-child(2)").addClass('act');
-			
+			// $('#draftList').children("li:nth-child(2)").addClass('act');
 			/*$("#draftList").find('li').each(function(key,val){
 				if($(val).hasClass('act')){
 					$(val).removeClass('act');
@@ -652,8 +676,6 @@ $(function() {
 
 
 
-		}else{
-
 		}
 	}
 	//console.log($(strchaptertitle).css("color"));return;
@@ -667,6 +689,11 @@ $(function() {
 			return;
 		var btntype="save";
 		_saveInfo(volumeid,btntype);
+
+        // location.reload();
+
+        // 调用_InitSelect方法，切换为查看状态
+        _InitSelect(0);
 		
 	});
 	//发布方法
@@ -693,20 +720,15 @@ $(function() {
 			data:{'type':type,'chapter_id':chapter_id,'chaptertitle':chaptertitle,'content':content,'book_id':book_id,'volume_id':volumeid},
 			dataType:'json',
 			success:function(msg){
-				console.log(msg.chapter_id);
-				if(msg.type=="save"){
-					if(msg.chapter_id!=-1){
-
-					}else{
-
-					}
-				}
-			//	window.location="chapter?book_id=<?=$_GET['book_id']?>&type=0";
+                var str = '';
+                str+= "<li class='act'><div class='sectionBox' data-zhangjieid='"+msg.chapter_id+"'><p><em>"+msg.chapter_name;
+                str+= "</em></p><p class='f12'><i>&nbsp;</i></p></div></li>";
+                $('#draftList').prepend(str);
 			}
 		});
 	}
 		//初始化章节选中项
-	function _InitSelect(){
+	/*function _InitSelect(){
 		var select_chapter_id="<?=$data['select_chapter_id']?>";
 		var type="<?=$_GET['type']?>";
 		console.log(select_chapter_id);
@@ -714,7 +736,7 @@ $(function() {
 			$('#draftList').children("li:first-child").css('display','none');
 			$('#draftList').children("li:nth-child(2)").addClass('act');
 			
-			/*$("#draftList").find('li').each(function(key,val){
+			$("#draftList").find('li').each(function(key,val){
 				if($(val).hasClass('act')){
 					$(val).removeClass('act');
 					
@@ -726,9 +748,9 @@ $(function() {
 					$(val).addClass('act');
 					return;
 				}
-			});*/
+			});
 		}
-	}
+	}*/
 	//数据验证
 	function _checkDraftInfo(){
 		var chaptertitle=null;
@@ -752,49 +774,33 @@ $(function() {
 	// 切换章节标题
 	$(".sectionBox").click(function(e){
 		chapter_id = this.dataset.zhangjieid;
+        console.log(chapter_id);
 		var book_id = "<?=$_GET['book_id']?>";
 		//判断选中项是否存在
 		if(chapter_id==undefined){
 			return false;
 		}
 		else{
-			/*if(type==1){
-				$.ajax({
-					type:'post',
-					url: 'select_chapter',
-					data:{'chapter_id':chapter_id},
-					dataType:'json',
-					success:function(msg){
-						//location.reload();
-						console.log(msg.chapter_id);
-						window.location="chapter?book_id=<?=$_GET['book_id']?>&type=0";
-					}
-				});
-				return false;
-			}
-			else if(type==0)
-			{*/
-				
-				$(this).parents("#draftList").children("li:first-child").css('display','none');
-				$.ajax({
-					type:'post',
-					url: 'ajax_chapter',
-					data:{'chapter_id':chapter_id,'book_id':book_id},
-					dataType:'json',
-					success:function(msg){
-						$(strchaptertitle).val(msg.chapter_name);
-						$(strchaptertitle).css('color','black');
+			if($(this).parents("#draftList").children("li:first-child").html()==='<div class="sectionBox"><p><em>无标题</em></p><p class="f12"><i>&nbsp;</i></p></div>'){
+			    $(this).parents("#draftList").children("li:first-child").css('display','none');
+            }
+			$.ajax({
+				type:'post',
+				url: 'ajax_chapter',
+				data:{'chapter_id':chapter_id,'book_id':book_id},
+				dataType:'json',
+				success:function(msg){
+					$(strchaptertitle).val(msg.chapter_name);
+					$(strchaptertitle).css('color','black');
 
-						$(strcon).val(msg.book_content);
-						$(strcon).css('color','black');
+					$(strcon).val(msg.book_content);
+					$(strcon).css('color','black');
 
-						// 切换时设置章节id用于修改
-						$("#chapter_id").val(chapter_id);
-					}
-				});
-			/*}*/
+					// 切换时设置章节id用于修改
+					$("#chapter_id").val(chapter_id);
+				}
+			});
 		}
-		
 	});
 
 	// 因为添加和修改是同一个页面，所以这里可以偷个懒，点击添加按钮的时候刷新一下页面就好

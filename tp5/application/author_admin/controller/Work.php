@@ -79,6 +79,10 @@ class Work extends AuthorBase{
 		$rel =$this -> login_state();
 		// 章节列表
 		$chapter_arr = $work->showchapter( $book_id );
+
+		// 章节json
+		$json_chapter_arr = json_encode($chapter_arr);
+
 		// 章节详情
 		/*if ( !empty($chapter_id) ) {
 			$detail = $work->chapterdetail($book_id, $chapter_id);
@@ -115,6 +119,7 @@ class Work extends AuthorBase{
 				'sell_status_id'=>$sell_status_id,
 				'last_volume'=>end($volumes),
 				'chapter_arr'=>$chapter_arr,
+				'json_chapter_arr'=>$json_chapter_arr,
 				'select_chapter_id'=>$select_chapter_id
 				//'chapter_name' => $chapter_name,
 				//'book_content' => $book_content
