@@ -721,7 +721,7 @@ $(function() {
 			dataType:'json',
 			success:function(msg){
                 var str = '';
-                str+= "<li class='act'><div class='sectionBox' data-zhangjieid='"+msg.chapter_id+"'><p><em>"+msg.chapter_name;
+                str+= "<li class='act'><div class='sectionBox' id='test1' data-zhangjieid='"+msg.chapter_id+"'><p><em>"+msg.chapter_name;
                 str+= "</em></p><p class='f12'><i>&nbsp;</i></p></div></li>";
                 $('#draftList').prepend(str);
 			}
@@ -734,6 +734,7 @@ $(function() {
 		console.log(select_chapter_id);
 		if(type==0){
 			$('#draftList').children("li:first-child").css('display','none');
+
 			$('#draftList').children("li:nth-child(2)").addClass('act');
 			
 			$("#draftList").find('li').each(function(key,val){
@@ -772,9 +773,9 @@ $(function() {
 		return true;
 	}
 	// 切换章节标题
-	$(".sectionBox").click(function(e){
+	$("#draftList").on('click','.sectionBox',function(e){
 		chapter_id = this.dataset.zhangjieid;
-        console.log(chapter_id);
+        // console.log(chapter_id);
 		var book_id = "<?=$_GET['book_id']?>";
 		//判断选中项是否存在
 		if(chapter_id==undefined){
@@ -808,6 +809,7 @@ $(function() {
 		//console.log('create');
 		//location.reload();
 	});
+
 });
 </script>
 <!--自己的代码结束-->
