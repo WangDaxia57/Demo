@@ -721,7 +721,7 @@ $(function() {
 			dataType:'json',
 			success:function(msg){
                 var str = '';
-                str+= "<li class='act'><div class='sectionBox' id='test1' data-zhangjieid='"+msg.chapter_id+"'><p><em>"+msg.chapter_name;
+                str+= "<li class='act'><div class='sectionBox' data-zhangjieid='"+msg.chapter_id+"'><p><em>"+msg.chapter_name;
                 str+= "</em></p><p class='f12'><i>&nbsp;</i></p></div></li>";
                 $('#draftList').prepend(str);
 			}
@@ -803,7 +803,7 @@ $(function() {
 			});
 		}
 	});
-
+    
 	// 因为添加和修改是同一个页面，所以这里可以偷个懒，点击添加按钮的时候刷新一下页面就好
 	$("#createButton").click(function(){
 		//console.log('create');
